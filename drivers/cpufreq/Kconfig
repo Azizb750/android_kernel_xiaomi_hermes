@@ -67,7 +67,7 @@ config CPU_FREQ_DEFAULT_GOV_SMARTMAX
 
 config CPU_FREQ_DEFAULT_GOV_SMARTASSV2
         bool "smartassv2"
-        select CPU_FREQ_GOV_SMARTMASS2
+        select CPU_FREQ_GOV_SMARTMASSV2
         help
           Use the CPUFreq governor 'smartassv2' as default
 
@@ -320,11 +320,17 @@ config CPU_FREQ_GOV_ALUCARD
 
           If in doubt, say N.
 
-config CPU_FREQ_GOV_SMARTASS2
+config CPU_FREQ_GOV_SMARTASSV2
 	  tristate "'smartassV2' cpufreq governor"
 	  depends on CPU_FREQ
 	  help
 	    'Use smartass2 governer'
+
+config CPU_FREQ_GOV_SMARTASSH3
+          tristate "'smartassH3' cpufreq governor"
+          depends on CPU_FREQ
+          help
+            'Use smartass2 governor'
 
 config CPU_FREQ_GOV_WHEATLEY
 	tristate "'wheatley' cpufreq governor"
