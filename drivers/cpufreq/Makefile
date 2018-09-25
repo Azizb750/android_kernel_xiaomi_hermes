@@ -15,8 +15,6 @@ obj-$(CONFIG_CPU_FREQ_GOV_INTERACTIVE)	+= cpufreq_interactive.o
 obj-$(CONFIG_CPU_FREQ_GOV_SMARTMAX)    += cpufreq_smartmax.o
 obj-$(CONFIG_CPU_FREQ_GOV_DARKNESS)	+= cpufreq_darkness.o
 obj-$(CONFIG_CPU_FREQ_GOV_COMMON)	+= cpufreq_governor.o
-obj-$(CONFIG_CPU_FREQ_GOV_SMARTASSH3)    += cpufreq_smartassH3.o
-obj-$(CONFIG_CPU_FREQ_GOV_SMARTASSV2)    += cpufreq_smartassv2.o
 obj-$(CONFIG_CPU_FREQ_GOV_ALUCARD) 	+= cpufreq_alucard.o
 obj-$(CONFIG_CPU_FREQ_GOV_WHEATLEY)	+= cpufreq_wheatley.o
 
