@@ -1110,9 +1110,7 @@ void dcm_iomap(void)
     else{
         dcm_I2C4_base = 0;
        	printk("[DCM_I2C4] dcm_I2C4_base error\n");
-#if 0 //I2C4 is not defined in device tree, so not to generate AEE
         aee_kernel_warning("mt_dcm", "@%s():%d, mediatek,I2C4\n", __func__, __LINE__);
-#endif
     }
 
 //MJC_CONFIG@0x17000000

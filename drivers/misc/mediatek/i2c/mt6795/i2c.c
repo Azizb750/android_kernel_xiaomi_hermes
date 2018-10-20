@@ -1536,8 +1536,7 @@ static S32 mt_i2c_probe(struct platform_device *pdev)
 		i2c->pdn = MT_CG_PERI_I2C3;
 		break;
 	  case 4:
-	  	//ROME lay out no i2c4
-		//i2c->pdn = MT_CG_PERI_I2C4;
+		i2c->pdn = MT_CG_PERI_I2C4;
 		break;
 	  default:
 		dev_err(&pdev->dev, "Error id %d\n", i2c->id);
@@ -1656,6 +1655,7 @@ static const struct of_device_id mt_i2c_of_match[] = {
 	{ .compatible = "mediatek,I2C1", },
 	{ .compatible = "mediatek,I2C2", },
 	{ .compatible = "mediatek,I2C3", },
+	{ .compatible = "mediatek,I2C4", },
 	{/* sentinel */},
 };
 
