@@ -10,3 +10,6 @@ obj-y   +=  tpd_default.o
 obj-y   +=  tpd_init.o
 obj-y   +=  tpd_misc.o
 obj-y   +=  tpd_setting.o
+
+obj-$(CONFIG_MTK_FT5206) += ft5206/
+

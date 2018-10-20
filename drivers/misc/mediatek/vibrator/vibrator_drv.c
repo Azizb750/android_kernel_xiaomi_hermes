@@ -85,6 +85,13 @@ static int vibr_Enable(void)
 {
 	if (!ldo_state) {
 		vibr_Enable_HW();
+		mt_set_gpio_mode(GPIO_KPD_KCOL3_PIN, 3);
+		mt_set_gpio_mode(GPIO_KPD_KCOL1_PIN, 0);
+		mt_set_gpio_dir(GPIO_KPD_KCOL1_PIN, 1);
+		mt_set_gpio_out(GPIO_KPD_KCOL1_PIN, 1);
+		mt_set_gpio_mode(GPIO_KPD_KCOL2_PIN, 0);
+		mt_set_gpio_dir(GPIO_KPD_KCOL2_PIN, 1);
+		mt_set_gpio_out(GPIO_KPD_KCOL2_PIN, 1);
 		ldo_state = 1;
 	}
 	return 0;
@@ -94,6 +101,13 @@ static int vibr_Disable(void)
 {
 	if (ldo_state) {
 		vibr_Disable_HW();
+		mt_set_gpio_out(GPIO_KPD_KCOL2_PIN, 0);
+		mt_set_gpio_mode(GPIO_KPD_KCOL1_PIN, 0);
+		mt_set_gpio_dir(GPIO_KPD_KCOL1_PIN, 1);
+		mt_set_gpio_out(GPIO_KPD_KCOL1_PIN, 0);;
+		mt_set_gpio_mode(GPIO_KPD_KCOL3_PIN, 0);
+		mt_set_gpio_dir(GPIO_KPD_KCOL3_PIN, 1);
+		mt_set_gpio_out(GPIO_KPD_KCOL3_PIN, 0);
 		ldo_state = 0;
 	}
 	return 0;

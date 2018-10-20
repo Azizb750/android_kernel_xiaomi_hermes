@@ -1,1 +1,11 @@
-#empty
+config MTK_FT5206
+	bool "FT5206 for Mediatek package"
+	default n
+	help
+	  Say Y here to enable MTK_FT5206 touchscreen support.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called MTK_FT5206.
+
