@@ -312,41 +312,6 @@ int iReadReg(u16 a_u2Addr , u8 *a_puBuff , u16 i2cId)
     return 0;
 }
 
-
-int read_reg_byte_data(u8 *a_pSendData , u16 a_sizeSendData, u8 *a_pRecvData, u16 a_sizeRecvData, u16 i2cId)
-{
-    int  i4RetValue = 0;
-	u8 buf = 0;
-	int ret = 0;
-
-    if (gI2CBusNum == SUPPORT_I2C_BUS_NUM1) {
-	spin_lock(&kdsensor_drv_lock);
-	g_pstI2Cclient->addr = (i2cId >> 1);
-	g_pstI2Cclient->ext_flag = (g_pstI2Cclient->ext_flag)&(~I2C_DMA_FLAG);
-
-	/* Remove i2c ack error log during search sensor */
-	/* PK_ERR("g_pstI2Cclient->ext_flag: %d", g_IsSearchSensor); */
-	if (g_IsSearchSensor == 1)
-	    g_pstI2Cclient->ext_flag = (g_pstI2Cclient->ext_flag) | I2C_A_FILTER_MSG;
-	else
-	    g_pstI2Cclient->ext_flag = (g_pstI2Cclient->ext_flag)&(~I2C_A_FILTER_MSG);
-
-	spin_unlock(&kdsensor_drv_lock);
-	/*  */
-	g_pstI2Cclient->addr = (g_pstI2Cclient->addr & I2C_MASK_FLAG) |(I2C_WR_FLAG |I2C_RS_FLAG);
-	
-	buf = *a_pSendData;
-	
-	ret = i2c_master_send(g_pstI2Cclient, (const char *)&buf, 1<<8 | 1);
-
-	*a_pRecvData = buf;
-	
-    }
-    
-    return 0;
-}
-
-
 /*******************************************************************************
 * iReadRegI2C
 ********************************************************************************/
@@ -432,8 +397,6 @@ int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId)
 	g_pstI2Cclient2->addr = (i2cId >> 1);
 	g_pstI2Cclient2->ext_flag = (g_pstI2Cclient2->ext_flag)&(~I2C_DMA_FLAG);
     }
-    g_pstI2Cclient->timing = 400;/* 200k */
-	
     spin_unlock(&kdsensor_drv_lock);
 
 
@@ -662,8 +625,6 @@ int iWriteRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u16 i2cId)
 	g_pstI2Cclient2->addr = (i2cId >> 1);
 	g_pstI2Cclient2->ext_flag = (g_pstI2Cclient2->ext_flag)&(~I2C_DMA_FLAG);
     }
-    g_pstI2Cclient->timing = 400;/* 200k */
-	
     spin_unlock(&kdsensor_drv_lock);
     /*  */
 
@@ -1847,7 +1808,6 @@ inline static int  adopt_CAMERA_HW_FeatureControl(void *pBuf)
 	case SENSOR_FEATURE_GET_PDAF_INFO:
 	case SENSOR_FEATURE_GET_PDAF_DATA:
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
-	case SENSOR_FEATURE_SET_ISO:
 	    /*  */
 	    if (copy_from_user((void *)pFeaturePara , (void *) pFeatureCtrl->pFeaturePara, FeatureParaLen)) {
 		kfree(pFeaturePara);
@@ -2013,7 +1973,6 @@ inline static int  adopt_CAMERA_HW_FeatureControl(void *pBuf)
 	case SENSOR_FEATURE_SET_MIN_MAX_FPS:
 	case SENSOR_FEATURE_GET_PDAF_INFO:
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
-	case SENSOR_FEATURE_SET_ISO:
 	    /*  */
 	    if (copy_to_user((void __user *) pFeatureCtrl->pFeaturePara, (void *)pFeaturePara , FeatureParaLen)) {
 		kfree(pFeaturePara);
@@ -2685,62 +2644,6 @@ static const struct file_operations g_stCAMERA_HW_fops =
 
 };
 
-int Main_Camera_MID = 0;// 
-int Sub_Camera_MID = 0;// 
-
-#define OFILM_MID 7
-#define SHARP_MID 2
-#define SUMSUNG_MID 3
-#define SUNNY_MID 1
-#if defined(S5K3L9_MIPI_RAW)
-extern int get_3l9_dvt_id(void);
-#endif
-
-
-static ssize_t show_main_camera_module_vendor(struct device *dev,struct device_attribute *attr, char *buf)
-{
-	if(Main_Camera_MID == OFILM_MID)
-	{
-		return snprintf(buf, PAGE_SIZE, "%s\n", "Ofilm");
-   	}
-	else if(Main_Camera_MID == SHARP_MID)
-	{
-		return snprintf(buf, PAGE_SIZE, "%s\n", "Sharp");
-	}
-#if defined(S5K3L9_MIPI_RAW)
-	else if(Main_Camera_MID == SUMSUNG_MID)
-	{	
-		if(get_3l9_dvt_id() < 2)
-		{
-			return snprintf(buf, PAGE_SIZE, "%s\n", "Samsung before DVT1");
-		}
-		else
-		{
-			return snprintf(buf, PAGE_SIZE, "%s\n", "Samsung after DVT2");
-		}
-	}
-#endif
-	else
-	{
-		return snprintf(buf, PAGE_SIZE, "%s\n", "Unknown");
-	}
-}
-
-static ssize_t show_sub_camera_module_vendor(struct device *dev,struct device_attribute *attr, char *buf)
-{
-   if(Sub_Camera_MID == OFILM_MID)
-	return snprintf(buf, PAGE_SIZE, "%s\n", "Ofilm");
-   else if(Sub_Camera_MID == SHARP_MID)
-   	return snprintf(buf, PAGE_SIZE, "%s\n", "Sharp");
-   else if(Sub_Camera_MID == SUNNY_MID)
-   	return snprintf(buf, PAGE_SIZE, "%s\n", "Sunny");
-   else
-   	return snprintf(buf, PAGE_SIZE, "%s\n", "Unknown");   
-}
-static DEVICE_ATTR(main_camera_module_vendor, 0664, show_main_camera_module_vendor, NULL); //664
-static DEVICE_ATTR(sub_camera_module_vendor, 0664, show_sub_camera_module_vendor, NULL); //664
-
-
 #define CAMERA_HW_DYNAMIC_ALLOCATE_DEVNO 1
 /*******************************************************************************
 * RegisterCAMERA_HWCharDrv
@@ -2748,7 +2651,6 @@ static DEVICE_ATTR(sub_camera_module_vendor, 0664, show_sub_camera_module_vendor
 inline static int RegisterCAMERA_HWCharDrv(void)
 {
     struct device *sensor_device = NULL;
-	int ret_device_file = 0;
 	
 #if CAMERA_HW_DYNAMIC_ALLOCATE_DEVNO
     if (alloc_chrdev_region(&g_CAMERA_HWdevno, 0, 1, CAMERA_HW_DRVNAME1))
@@ -2800,9 +2702,6 @@ inline static int RegisterCAMERA_HWCharDrv(void)
 	return ret;
     }
     sensor_device = device_create(sensor_class, NULL, g_CAMERA_HWdevno, NULL, CAMERA_HW_DRVNAME1);
-
-	ret_device_file = device_create_file(sensor_device, &dev_attr_main_camera_module_vendor);
-	ret_device_file = device_create_file(sensor_device, &dev_attr_sub_camera_module_vendor);
 
     return 0;
 }

@@ -43,8 +43,8 @@
 
 
 //return value :
-  // KAL_FALSE : charger�S���ϥΤ�
-   //KAL_TRUE : charger�ϥΤ�
+  // KAL_FALSE : chargeršSŠ³šÏ¥Î€€
+   //KAL_TRUE : chargeršÏ¥Î€€
 
 extern kal_bool bat_is_charger_exist(void);
 

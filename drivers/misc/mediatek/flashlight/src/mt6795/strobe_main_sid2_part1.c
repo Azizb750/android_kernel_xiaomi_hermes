@@ -42,7 +42,7 @@
 // ANDROID_LOG_INFO
 // ANDROID_LOG_DEBUG
 // ANDROID_LOG_VERBOSE
-#define TAG_NAME "strobe_main_sid2_part1.c"
+#define TAG_NAME "leds_strobe.c"
 #define PK_DBG_NONE(fmt, arg...)    do {} while (0)
 #define PK_DBG_FUNC(fmt, arg...)    xlog_printk(ANDROID_LOG_DEBUG  , TAG_NAME, KERN_INFO  "%s: " fmt, __FUNCTION__ ,##arg)
 #define PK_WARN(fmt, arg...)        xlog_printk(ANDROID_LOG_WARNING, TAG_NAME, KERN_WARNING  "%s: " fmt, __FUNCTION__ ,##arg)

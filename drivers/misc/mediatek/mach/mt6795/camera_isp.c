@@ -53,10 +53,6 @@
 /*  */
 #include "../../smi/mt6795/smi_common.h"
 
-//for android L suspend/resume under flash light issue
-#include <linux/wakelock.h>
-
-
 #define CAMSV_DBG
 #ifdef CAMSV_DBG
     #define CAM_TAG "CAM:"
@@ -177,10 +173,6 @@ typedef enum
 
 static unsigned long gISPSYS_Irq[ISP_CAM_IRQ_IDX_NUM];
 static unsigned long gISPSYS_Reg[ISP_CAM_BASEADDR_NUM];
-
-//for android L flash light suspend/resume issue
-struct wake_lock isp_wake_lock;
-static volatile int g_bWaitLock=0;
 
 
 static void __iomem *g_isp_base_dase;
@@ -6760,7 +6752,6 @@ static long ISP_ioctl(
     ISP_ED_BUFQUE_STRUCT    edQueBuf;
     MUINT32                 regScenInfo_value = 0xa5a5a5a5;
     MINT32                  burstQNum;
-    MUINT32                 wakelock_ctrl;
     MUINT32 flags;
     /*  */
     if (pFile->private_data == NULL)
@@ -6773,33 +6764,6 @@ static long ISP_ioctl(
     /*  */
     switch (Cmd)
     {
-        //for android L flash light suspend/resume issue
-        case ISP_WAKELOCK_CTRL:
-         if (copy_from_user(&wakelock_ctrl, (void *)Param, sizeof(MUINT32)) != 0) {
-                LOG_ERR("get ISP_WAKELOCK_CTRL from user fail");
-                Ret = -EFAULT;
-            }
-            else{
-                if (wakelock_ctrl == 1) //Enable wakelock
-                {
-                    if(g_bWaitLock==0)
-                    {
-                        wake_lock(&isp_wake_lock);
-                        g_bWaitLock=1;
-                        LOG_DBG("wakelock enable!!\n");
-                    }
-                }
-                else //Disable wakelock
-                {
-                    if(g_bWaitLock==1)
-                    {
-                        wake_unlock(&isp_wake_lock);
-                        g_bWaitLock=0;
-                        LOG_DBG("wakelock diable!!\n");
-                    }
-                }
-            }
-        break;
 	case ISP_GET_DROP_FRAME:
 	    if (copy_from_user(&DebugFlag[0], (void *)Param, sizeof(MUINT32)) != 0) {
 		LOG_ERR("get irq from user fail");
@@ -7697,7 +7661,6 @@ static long ISP_ioctl_compat(struct file *filp, unsigned int cmd, unsigned long 
     case ISP_SET_USER_PID: /* structure use unsigned long , but the code is unsigned int */
     case ISP_SET_FPS:
     case ISP_DUMP_ISR_LOG:
-    case ISP_WAKELOCK_CTRL:
 	return filp->f_op->unlocked_ioctl(filp, cmd, arg);
     default:
 	return -ENOIOCTLCMD;
@@ -7917,14 +7880,6 @@ static MINT32 ISP_release(
 
     /* Disable clock. */
     ISP_EnableClock(MFALSE);
-    //why i add this wake_unlock here, because the Ap is not expected to be dead.
-    //The driver must releae the wakelock, otherwise the system will not enter
-    // the power-saving mode
-    if(g_bWaitLock==1)
-    {
-        wake_unlock(&isp_wake_lock);
-        g_bWaitLock=0;
-    }
 
     if (IspInfo.BufInfo.Read.pData != NULL)
     {
@@ -7957,7 +7912,7 @@ EXIT:
 static MINT32 mmap_kmem(struct file *filp, struct vm_area_struct *vma)
 {
 	int ret;
-	unsigned long length = 0;
+	long length = 0;
 	length = vma->vm_end - vma->vm_start;
 
 	/* check length - do not allow larger mappings than the number of
@@ -7990,7 +7945,7 @@ static MINT32 ISP_mmap(
     struct file *pFile,
     struct vm_area_struct *pVma)
 {
-    unsigned long length = 0;
+    long length = 0;
     MUINT32 pfn = 0x0;
     LOG_DBG("- E.");
     length = pVma->vm_end - pVma->vm_start;
@@ -8282,8 +8237,6 @@ static MINT32 ISP_probe(struct platform_device *pDev)
     device_create(pIspClass, NULL, IspDevNo, NULL, ISP_DEV_NAME);
     /*  */
     init_waitqueue_head(&IspInfo.WaitQueueHead);
-    //add for android L flash light suspend/resume issue
-    wake_lock_init(&isp_wake_lock, WAKE_LOCK_SUSPEND, "isp_lock_wakelock");
     /*  */
     INIT_WORK(&IspInfo.ScheduleWorkVD,       ISP_ScheduleWork_VD);
     INIT_WORK(&IspInfo.ScheduleWorkEXPDONE,  ISP_ScheduleWork_EXPDONE);

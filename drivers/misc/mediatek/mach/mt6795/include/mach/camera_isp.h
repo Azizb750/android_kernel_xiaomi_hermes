@@ -889,7 +889,6 @@ typedef enum
 #ifdef T_STAMP_2_0
     ISP_CMD_SET_FPS,
 #endif
-    ISP_CMD_WAKELOCK_CTRL,          //add for android L flash light suspend/resume issue
 }ISP_CMD_ENUM;
 //
 #define ISP_RESET_CAM_P1    _IO  (ISP_MAGIC, ISP_CMD_RESET_CAM_P1)
@@ -924,7 +923,6 @@ typedef enum
 #ifdef T_STAMP_2_0
     #define ISP_SET_FPS     _IOW (ISP_MAGIC, ISP_CMD_SET_FPS,    unsigned int)
 #endif
-#define ISP_WAKELOCK_CTRL     _IOWR (ISP_MAGIC, ISP_CMD_WAKELOCK_CTRL,      unsigned int)
 
 #ifdef CONFIG_COMPAT
 
