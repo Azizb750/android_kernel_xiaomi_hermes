@@ -34,14 +34,14 @@
 #include "kd_imgsensor_define.h"
 #include "kd_imgsensor_errcode.h"
 
-#include "ov5670mipi_Sensor.h"
+#include "ov5670_2nd_mipi_Sensor.h"
 
 #define OV5670_OTP
 
 #ifdef CONFIG_COMPAT
 #include <linux/compat.h>
 #endif
-#define PFX "ov5670_camera_sensor"
+#define PFX "ov5670_2nd_camera_sensor"
 //#define LOG_WRN(format, args...) xlog_printk(ANDROID_LOG_WARN ,PFX, "[%S] " format, __FUNCTION__, ##args)
 //#defineLOG_INF(format, args...) xlog_printk(ANDROID_LOG_INFO ,PFX, "[%s] " format, __FUNCTION__, ##args)
 //#define LOG_DBG(format, args...) xlog_printk(ANDROID_LOG_DEBUG ,PFX, "[%S] " format, __FUNCTION__, ##args)
@@ -51,7 +51,7 @@ static DEFINE_SPINLOCK(imgsensor_drv_lock);
 
 //reversed
 static imgsensor_info_struct imgsensor_info = { 
-	.sensor_id = OV5670_SENSOR_ID,		//record sensor id defined in Kd_imgsensor.h
+	.sensor_id = OV5670_2ND_SENSOR_ID,		//record sensor id defined in Kd_imgsensor.h
 	.checksum_value = 0x523c51f6,		//checksum value for Camera Auto Test
 	.pre = {
 		.pclk = 102850000,				//record different mode's pclk
@@ -527,8 +527,8 @@ static int update_otp_wb()
 
 	read_otp_info(info_index, &current_otp);
 	if (current_otp.module_integrator_id == 1) {
-		RG_Ratio_Typical = 290;  // 259
-		BG_Ratio_Typical = 320;	 //324
+		RG_Ratio_Typical = 331;  // 259
+		BG_Ratio_Typical = 316;	 //324
 	} 
 	if (current_otp.module_integrator_id == 7) {
 		RG_Ratio_Typical = 272;  // 259
@@ -2215,7 +2215,7 @@ static SENSOR_FUNCTION_STRUCT sensor_func = {
 	close
 };
 
-UINT32 OV5670_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
+UINT32 OV5670_2ND_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
 {
 	/* To Do : Check Sensor status here */
 	if (pfFunc!=NULL)

@@ -34,10 +34,10 @@
 #include "kd_imgsensor_define.h"
 #include "kd_imgsensor_errcode.h"
 
-#include "s5k3m2mipi_Sensor.h"
+#include "s5k3m2_2nd_mipi_Sensor.h"
 
-#define PFX "S5K3M2_camera_sensor"
-#define LOG_1 LOG_INF("S5K3M2,MIPI 4LANE\n")
+#define PFX "S5K3M2_2nd_camera_sensor"
+#define LOG_1 LOG_INF("S5k3M2_2ND,MIPI 4LANE\n")
 #define LOG_2 LOG_INF("preview 2096*1552@30fps,1260Mbps/lane; video 4192*3104@30fps,1260Mbps/lane; capture 13M@30fps,1260Mbps/lane\n")
 //#define LOG_DBG(format, args...) xlog_printk(ANDROID_LOG_DEBUG ,PFX, "[%S] " format, __FUNCTION__, ##args)
 #define LOG_INF(format, args...)	xlog_printk(ANDROID_LOG_INFO   , PFX, "[%s] " format, __FUNCTION__, ##args)
@@ -47,7 +47,7 @@
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 static imgsensor_info_struct imgsensor_info = { 
-	.sensor_id = S5K3M2_SENSOR_ID,
+	.sensor_id = S5K3M2_2ND_SENSOR_ID  ,
 	.checksum_value = 0x752cfcc1, // 0xc3dd012b, 
 	.pre = {
 		.pclk = 440000000,				//record different mode's pclk
@@ -315,27 +315,27 @@ struct S5K3m2_MIPI_otp_struct {
 	int VCM_dir;
 };
 
-void S5K3M2_MIPI_read_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
+void S5K3M2_2ND_MIPI_read_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
 {
    	kal_uint16 golden_R, golden_G, golden_Gr, golden_Gb, golden_B, current_R, current_G, current_Gr, current_Gb, current_B, r_ratio, b_ratio, FLG;
    
    	FLG = read_3m2_eeprom_reg(0x0000); 
 
    	if(FLG==0)
-		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] No OTP Data or OTP data is invalid");
+		LOG_INF("[S5K3m2] [S5K3M2_2ND_MIPI_read_otp_wb] No OTP Data or OTP data is invalid");
    	else
    	{
-		golden_R = 0x59;           	 // read Golden value
-		golden_Gr= 0xa2;              // read Golden value
- 		golden_Gb= 0xa3;              // read Golden value
-		golden_B = 0x65;              // resad Golden value
-  		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] golden_R=0x%x, golden_Gr=0x%x, golden_Gb=0x%x, golden_B=0x%x\n", golden_R, golden_Gr, golden_Gb, golden_B);
+		golden_R = 0x4b;           	 // read Golden value
+		golden_Gr= 0x8f;              // read Golden value
+ 		golden_Gb= 0x8f;              // read Golden value
+		golden_B = 0x4e;              // resad Golden value
+  		LOG_INF("[S5K3m2] [S5K3M2_2ND_MIPI_read_otp_wb] golden_R=0x%x, golden_Gr=0x%x, golden_Gb=0x%x, golden_B=0x%x\n", golden_R, golden_Gr, golden_Gb, golden_B);
 
   		current_R =  read_3m2_eeprom_reg(0x0009);
   		current_Gr = read_3m2_eeprom_reg(0x000a);
   		current_Gb = read_3m2_eeprom_reg(0x000b);
   		current_B =  read_3m2_eeprom_reg(0x000c); 
-  		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] current_R=0x%x, current_Gr=0x%x, current_Gb=0x%x, current_B=0x%x\n", current_R, current_Gr, current_Gb, current_B);
+  		LOG_INF("[S5K3m2] [S5K3M2_2ND_MIPI_read_otp_wb] current_R=0x%x, current_Gr=0x%x, current_Gb=0x%x, current_B=0x%x\n", current_R, current_Gr, current_Gb, current_B);
    		
    		golden_G = (golden_Gr + golden_Gb) / 2;
    		current_G = (current_Gr + current_Gb) / 2;
@@ -349,11 +349,11 @@ void S5K3M2_MIPI_read_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
    		otp->r_ratio = r_ratio;
    		otp->b_ratio = b_ratio;
 	
-   		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] r_ratio=0x%x, b_ratio=0x%x\n", otp->r_ratio, otp->b_ratio);      
+   		LOG_INF("[S5K3m2] [S5K3M2_2ND_MIPI_read_otp_wb] r_ratio=0x%x, b_ratio=0x%x\n", otp->r_ratio, otp->b_ratio);      
    	}
 }
 
-void S5K3M2_MIPI_algorithm_otp_wb1(struct S5K3m2_MIPI_otp_struct *otp)
+void S5K3M2_2ND_MIPI_algorithm_otp_wb1(struct S5K3m2_MIPI_otp_struct *otp)
 {
    	kal_uint16 R_GAIN, B_GAIN, Gr_GAIN, Gb_GAIN, G_GAIN, r_ratio, b_ratio;
    
@@ -407,10 +407,10 @@ void S5K3M2_MIPI_algorithm_otp_wb1(struct S5K3m2_MIPI_otp_struct *otp)
  	otp->B_Gain = B_GAIN;
  	otp->G_Gain = G_GAIN;
 
-   	LOG_INF("[S5K3m2] [S5K3m2_MIPI_algorithm_otp_wb1] R_gain=0x%x, B_gain=0x%x, G_gain=0x%x\n", R_GAIN, B_GAIN,G_GAIN);    
+   	LOG_INF("[S5K3m2] [S5K3M2_2ND_MIPI_algorithm_otp_wb1] R_gain=0x%x, B_gain=0x%x, G_gain=0x%x\n", R_GAIN, B_GAIN,G_GAIN);    
 }
 
-void S5K3M2_MIPI_write_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
+void S5K3M2_2ND_MIPI_write_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
 {
    kal_uint16 R_GAIN, B_GAIN, G_GAIN;
 
@@ -2856,9 +2856,11 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 			write_cmos_sensor(0x602C,0x4000);
 			write_cmos_sensor(0x602E,0x0000);
 			*sensor_id = read_cmos_sensor(0x6F12);
-            LOG_INF("s5k3m2_dino 0x%x\n", read_3m2_eeprom_reg(0));
+            LOG_INF("s5k3m2_2nd_dino sensor_id 0x%x\n", *sensor_id);
+			*sensor_id = *sensor_id + 1;
+            LOG_INF("s5k3m2_2nd_dino eeprom 0x%x\n", read_3m2_eeprom_reg(0));
             if (*sensor_id == imgsensor_info.sensor_id) {               
-                if (read_3m2_eeprom_reg(0) == 0x1) {
+                if (read_3m2_eeprom_reg(0) == 0x7) {
                     LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);
                     return ERROR_NONE;
                 } else {
@@ -2913,9 +2915,10 @@ static kal_uint32 open(void)
         do {
 			write_cmos_sensor(0x602C,0x4000);
 			write_cmos_sensor(0x602E,0x0000);
-            sensor_id =  read_cmos_sensor(0x6F12);
+            sensor_id = read_cmos_sensor(0x6F12);
+            sensor_id = sensor_id + 1;
 			//sensor_id = imgsensor_info.sensor_id;
-            if ((sensor_id == imgsensor_info.sensor_id) && (read_3m2_eeprom_reg(0) == 0x1)) {
+            if ((sensor_id == imgsensor_info.sensor_id) && (read_3m2_eeprom_reg(0) == 0x7)) {
                 LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);  
                 break;
             }   
@@ -2931,10 +2934,10 @@ static kal_uint32 open(void)
         return ERROR_SENSOR_CONNECT_FAIL;
 	/* initail sequence write in  */
 
-   	S5K3M2_MIPI_read_otp_wb(&current_otp);
+   	S5K3M2_2ND_MIPI_read_otp_wb(&current_otp);
 	sensor_init();
-	S5K3M2_MIPI_algorithm_otp_wb1(&current_otp);
-   	S5K3M2_MIPI_write_otp_wb(&current_otp);
+	S5K3M2_2ND_MIPI_algorithm_otp_wb1(&current_otp);
+   	S5K3M2_2ND_MIPI_write_otp_wb(&current_otp);
 
 	spin_lock(&imgsensor_drv_lock);
 
@@ -3863,7 +3866,7 @@ static SENSOR_FUNCTION_STRUCT sensor_func = {
 	close
 };
 
-UINT32 S5K3M2_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
+UINT32 S5K3M2_2ND_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
 {
 	/* To Do : Check Sensor status here */
 	if (pfFunc!=NULL)
