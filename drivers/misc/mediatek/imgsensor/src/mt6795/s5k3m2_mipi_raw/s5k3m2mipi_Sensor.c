@@ -2856,9 +2856,8 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 			write_cmos_sensor(0x602C,0x4000);
 			write_cmos_sensor(0x602E,0x0000);
 			*sensor_id = read_cmos_sensor(0x6F12);
-            LOG_INF("s5k3m2_dino 0x%x\n", read_3m2_eeprom_reg(0));
             if (*sensor_id == imgsensor_info.sensor_id) {               
-                if (read_3m2_eeprom_reg(0) == 0x1) {
+                if (read_3m2_eeprom_reg(5) == 0x7) {
                     LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);
                     return ERROR_NONE;
                 } else {
@@ -2914,8 +2913,7 @@ static kal_uint32 open(void)
 			write_cmos_sensor(0x602C,0x4000);
 			write_cmos_sensor(0x602E,0x0000);
             sensor_id =  read_cmos_sensor(0x6F12);
-			//sensor_id = imgsensor_info.sensor_id;
-            if ((sensor_id == imgsensor_info.sensor_id) && (read_3m2_eeprom_reg(0) == 0x1)) {
+            if ((sensor_id == imgsensor_info.sensor_id) && (read_3m2_eeprom_reg(5) == 0x7)) {
                 LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);  
                 break;
             }   
