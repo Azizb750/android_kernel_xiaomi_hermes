@@ -45,12 +45,12 @@ http://4pda.ru/forum/index.php?showtopic=695717&st=1020#entry53819235
 	* IR Blaster
 
 =================================================
-# BUILD
-export TOP=$(pwd)
-export CROSS_COMPILE=/home/nofearnohappy/aarch64-linux-android-4.9-linaro-master/bin/aarch64-linux-android-
-mkdir -p $TOP/KERNEL_OBJ
-make -C kernel-3.10 O=$TOP/KERNEL_OBJ ARCH=arm64 MTK_TARGET_PROJECT=hermes TARGET_BUILD_VARIANT=user CROSS_COMPILE=$TOOLCHAIN ROOTDIR=$TOP hermes_defconfig
-make -C kernel-3.10 O=$TOP/KERNEL_OBJ ROOTDIR=$TOP
+# BUILD (WARNING! PLEASE READ CAREFULLY!)
+export TOP=$(pwd) <br>
+export CROSS_COMPILE=/home/(your username)/(toolchain folder name)/bin/aarch64-linux-android- <br>
+mkdir -p $TOP/KERNEL_OBJ <br>
+make -C kernel-3.10 O=$TOP/KERNEL_OBJ ARCH=arm64 MTK_TARGET_PROJECT=hermes TARGET_BUILD_VARIANT=user CROSS_COMPILE=$TOOLCHAIN ROOTDIR=$TOP hermes_defconfig <br>
+make -C kernel-3.10 O=$TOP/KERNEL_OBJ ROOTDIR=$TOP <br>
 
 # I2C
 
