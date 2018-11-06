@@ -1921,7 +1921,7 @@ static void Headset_Speaker_Amp_Change(bool enable)
 
         Ana_Set_Reg(AUDBUF_CFG0  , 0xE0A9 , 0xffffffff); // Switch HP MUX to audio DAC
         Ana_Set_Reg(AUDBUF_CFG0  , 0xE0AF , 0xffffffff); // Enable HPR/HPL
-        Ana_Set_Reg(AUDBUF_CFG1  , 0x0900 , 0xffffffff); // Disable pre-charge buffer
+        Ana_Set_Reg(AUDBUF_CFG1  , 0x0900 , 0xffff); // Disable pre-charge buffer
         Ana_Set_Reg(AUDBUF_CFG2  , 0x0020 , 0xffffffff); // Disable De_OSC of voice
         Ana_Set_Reg(AUDBUF_CFG0  , 0xE0AE , 0xffffffff); // Disable voice buffer
         Ana_Set_Reg(AUDBUF_CFG2  , 0x0489 , 0xffffffff); // Set HPR/HPL gain as 0dB
@@ -2003,7 +2003,6 @@ static int Headset_Speaker_Amp_Set(struct snd_kcontrol *kcontrol, struct snd_ctl
     //struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 
     printk("%s() gain = %lu \n ", __func__, ucontrol->value.integer.value[0]);
-    AW8736_MODE5;
     if ((ucontrol->value.integer.value[0]  == true) && (mCodec_data->mAudio_Ana_DevicePower[AUDIO_ANALOG_VOLUME_SPEAKER_HEADSET_R]  == false))
     {
         Headset_Speaker_Amp_Change(true);

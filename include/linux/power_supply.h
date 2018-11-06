@@ -151,7 +151,6 @@ enum power_supply_property {
 	/* 20100723 James Lo */
 	POWER_SUPPLY_PROP_batt_vol,
 	POWER_SUPPLY_PROP_batt_temp,
-	POWER_SUPPLY_PROP_Usb_Charging_Current,
 	/* 20100723 Add for EM */
 	POWER_SUPPLY_PROP_TemperatureR,
 	POWER_SUPPLY_PROP_TempBattVoltage,

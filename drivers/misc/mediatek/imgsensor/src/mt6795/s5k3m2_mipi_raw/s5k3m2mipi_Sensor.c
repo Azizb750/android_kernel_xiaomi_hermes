@@ -296,7 +296,7 @@ static void write_cmos_sensor_8(kal_uint16 addr, kal_uint8 para)
 extern kal_uint16 read_3m2_eeprom_reg(kal_uint32 addr);
 extern bool read_3m2_eeprom( kal_uint16 addr, BYTE* data, kal_uint32 size);
 
-struct S5K3m2_MIPI_otp_struct {
+struct S5K3M2_MIPI_otp_struct {
 	int flag; // bit[7]: info, bit[6]:wb, bit[5]:vcm, bit[4]:lenc
 	int module_id;
 	int lens_id;
@@ -315,27 +315,27 @@ struct S5K3m2_MIPI_otp_struct {
 	int VCM_dir;
 };
 
-void S5K3M2_MIPI_read_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
+void S5K3M2_MIPI_read_otp_wb(struct S5K3M2_MIPI_otp_struct *otp)
 {
    	kal_uint16 golden_R, golden_G, golden_Gr, golden_Gb, golden_B, current_R, current_G, current_Gr, current_Gb, current_B, r_ratio, b_ratio, FLG;
    
    	FLG = read_3m2_eeprom_reg(0x0000); 
 
    	if(FLG==0)
-		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] No OTP Data or OTP data is invalid");
+		LOG_INF("No OTP Data or OTP data is invalid");
    	else
    	{
 		golden_R = 0x59;           	 // read Golden value
 		golden_Gr= 0xa2;              // read Golden value
  		golden_Gb= 0xa3;              // read Golden value
 		golden_B = 0x65;              // resad Golden value
-  		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] golden_R=0x%x, golden_Gr=0x%x, golden_Gb=0x%x, golden_B=0x%x\n", golden_R, golden_Gr, golden_Gb, golden_B);
+  		LOG_INF("golden_R=0x%x, golden_Gr=0x%x, golden_Gb=0x%x, golden_B=0x%x\n", golden_R, golden_Gr, golden_Gb, golden_B);
 
   		current_R =  read_3m2_eeprom_reg(0x0009);
   		current_Gr = read_3m2_eeprom_reg(0x000a);
   		current_Gb = read_3m2_eeprom_reg(0x000b);
   		current_B =  read_3m2_eeprom_reg(0x000c); 
-  		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] current_R=0x%x, current_Gr=0x%x, current_Gb=0x%x, current_B=0x%x\n", current_R, current_Gr, current_Gb, current_B);
+  		LOG_INF("current_R=0x%x, current_Gr=0x%x, current_Gb=0x%x, current_B=0x%x\n", current_R, current_Gr, current_Gb, current_B);
    		
    		golden_G = (golden_Gr + golden_Gb) / 2;
    		current_G = (current_Gr + current_Gb) / 2;
@@ -349,11 +349,11 @@ void S5K3M2_MIPI_read_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
    		otp->r_ratio = r_ratio;
    		otp->b_ratio = b_ratio;
 	
-   		LOG_INF("[S5K3m2] [S5K3m2_MIPI_read_otp_wb] r_ratio=0x%x, b_ratio=0x%x\n", otp->r_ratio, otp->b_ratio);      
+   		LOG_INF("r_ratio=0x%x, b_ratio=0x%x\n", otp->r_ratio, otp->b_ratio);      
    	}
 }
 
-void S5K3M2_MIPI_algorithm_otp_wb1(struct S5K3m2_MIPI_otp_struct *otp)
+void S5K3M2_MIPI_algorithm_otp_wb1(struct S5K3M2_MIPI_otp_struct *otp)
 {
    	kal_uint16 R_GAIN, B_GAIN, Gr_GAIN, Gb_GAIN, G_GAIN, r_ratio, b_ratio;
    
@@ -407,10 +407,10 @@ void S5K3M2_MIPI_algorithm_otp_wb1(struct S5K3m2_MIPI_otp_struct *otp)
  	otp->B_Gain = B_GAIN;
  	otp->G_Gain = G_GAIN;
 
-   	LOG_INF("[S5K3m2] [S5K3m2_MIPI_algorithm_otp_wb1] R_gain=0x%x, B_gain=0x%x, G_gain=0x%x\n", R_GAIN, B_GAIN,G_GAIN);    
+   	LOG_INF("R_gain=0x%x, B_gain=0x%x, G_gain=0x%x\n", R_GAIN, B_GAIN,G_GAIN);    
 }
 
-void S5K3M2_MIPI_write_otp_wb(struct S5K3m2_MIPI_otp_struct *otp)
+void S5K3M2_MIPI_write_otp_wb(struct S5K3M2_MIPI_otp_struct *otp)
 {
    kal_uint16 R_GAIN, B_GAIN, G_GAIN;
 
@@ -567,10 +567,6 @@ static kal_uint16 gain2reg(const kal_uint16 gain)
 * GLOBALS AFFECTED
 *
 *************************************************************************/
-#ifdef BASEGAIN
-#undef BASEGAIN
-#define BASEGAIN 32
-#endif
 static kal_uint16 set_gain(kal_uint16 gain)
 {
 	kal_uint16 reg_gain;
@@ -579,13 +575,13 @@ static kal_uint16 set_gain(kal_uint16 gain)
     /* [0:3] = N meams N /16 X  */
     /* [4:9] = M meams M X       */
     /* Total gain = M + N /16 X   */
-    if (gain < BASEGAIN || gain > 32 * BASEGAIN) {
+    if (gain < BASEGAIN || gain > 1024) {
         LOG_INF("Error gain setting");
 
         if (gain < BASEGAIN)
             gain = BASEGAIN;
-        else if (gain > 32 * BASEGAIN)
-            gain = 32 * BASEGAIN;        
+        else if (gain > 1024)
+            gain = 1024;        
     }
  
     reg_gain = gain2reg(gain);
@@ -2898,7 +2894,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 *************************************************************************/
 static kal_uint32 open(void)
 {
-	struct S5K3m2_MIPI_otp_struct current_otp;
+	struct S5K3M2_MIPI_otp_struct current_otp;
 	kal_uint8 i = 0;
 	kal_uint8 retry = 2;
 	kal_uint16 sensor_id = 0; 
@@ -2913,11 +2909,12 @@ static kal_uint32 open(void)
 			write_cmos_sensor(0x602C,0x4000);
 			write_cmos_sensor(0x602E,0x0000);
             sensor_id =  read_cmos_sensor(0x6F12);
-            if ((sensor_id == imgsensor_info.sensor_id) && (read_3m2_eeprom_reg(5) == 0x7)) {
+            if (sensor_id == imgsensor_info.sensor_id) {
                 LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);  
                 break;
-            }   
-            LOG_INF("Read sensor id fail, id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);
+            }
+            if (sensor_id != imgsensor_info.sensor_id)
+                LOG_INF("Read sensor id fail, id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);
             retry--;
         } while(retry > 0);
         i++;
@@ -3012,7 +3009,7 @@ static kal_uint32 preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	imgsensor.autoflicker_en = KAL_FALSE;
 	spin_unlock(&imgsensor_drv_lock);
 	preview_setting();
-	set_mirror_flip(IMAGE_HV_MIRROR);
+	set_mirror_flip(imgsensor.mirror);
 	return ERROR_NONE;
 }	/*	preview   */
 
@@ -3060,7 +3057,7 @@ static kal_uint32 capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	spin_unlock(&imgsensor_drv_lock);
 	LOG_INF("Caputre fps:%d\n",imgsensor.current_fps);
 	capture_setting(imgsensor.current_fps); 
-    set_mirror_flip(IMAGE_HV_MIRROR);
+    set_mirror_flip(imgsensor.mirror);
 	return ERROR_NONE;
 }	/* capture() */
 static kal_uint32 normal_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
@@ -3078,7 +3075,7 @@ static kal_uint32 normal_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	imgsensor.autoflicker_en = KAL_FALSE;
 	spin_unlock(&imgsensor_drv_lock);
 	normal_video_setting(imgsensor.current_fps);
-	set_mirror_flip(IMAGE_HV_MIRROR);	
+	set_mirror_flip(imgsensor.mirror);	
 	return ERROR_NONE;
 }	/*	normal_video   */
 
@@ -3099,7 +3096,7 @@ static kal_uint32 hs_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	imgsensor.autoflicker_en = KAL_FALSE;
 	spin_unlock(&imgsensor_drv_lock);
 	hs_video_setting();
-	set_mirror_flip(IMAGE_HV_MIRROR);
+	set_mirror_flip(imgsensor.mirror);
 	return ERROR_NONE;
 }	/*	hs_video   */
 
@@ -3120,7 +3117,7 @@ static kal_uint32 slim_video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	imgsensor.autoflicker_en = KAL_FALSE;
 	spin_unlock(&imgsensor_drv_lock);
 	slim_video_setting();
-	set_mirror_flip(IMAGE_HV_MIRROR);
+	set_mirror_flip(imgsensor.mirror);
 	return ERROR_NONE;
 }
 

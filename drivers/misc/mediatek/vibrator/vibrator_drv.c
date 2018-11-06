@@ -14,6 +14,7 @@
 #include <linux/types.h>
 #include <linux/device.h>
 #include <linux/workqueue.h>
+#include <linux/delay.h>
 
 #include "timed_output.h"
 
@@ -86,9 +87,11 @@ static int vibr_Enable(void)
 	if (!ldo_state) {
 		vibr_Enable_HW();
 		mt_set_gpio_mode(GPIO_KPD_KCOL3_PIN, 3);
+		udelay(10);
 		mt_set_gpio_mode(GPIO_KPD_KCOL1_PIN, 0);
 		mt_set_gpio_dir(GPIO_KPD_KCOL1_PIN, 1);
 		mt_set_gpio_out(GPIO_KPD_KCOL1_PIN, 1);
+		udelay(10);
 		mt_set_gpio_mode(GPIO_KPD_KCOL2_PIN, 0);
 		mt_set_gpio_dir(GPIO_KPD_KCOL2_PIN, 1);
 		mt_set_gpio_out(GPIO_KPD_KCOL2_PIN, 1);
@@ -102,9 +105,11 @@ static int vibr_Disable(void)
 	if (ldo_state) {
 		vibr_Disable_HW();
 		mt_set_gpio_out(GPIO_KPD_KCOL2_PIN, 0);
+		udelay(10);
 		mt_set_gpio_mode(GPIO_KPD_KCOL1_PIN, 0);
 		mt_set_gpio_dir(GPIO_KPD_KCOL1_PIN, 1);
 		mt_set_gpio_out(GPIO_KPD_KCOL1_PIN, 0);;
+		udelay(10);
 		mt_set_gpio_mode(GPIO_KPD_KCOL3_PIN, 0);
 		mt_set_gpio_dir(GPIO_KPD_KCOL3_PIN, 1);
 		mt_set_gpio_out(GPIO_KPD_KCOL3_PIN, 0);

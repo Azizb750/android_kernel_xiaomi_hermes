@@ -211,134 +211,11 @@ config MTK_SMARTBOOK_SUPPORT
 	  phone screen is shown on smartbook screen, and user can operate
 	  the phone via smartbook's keyboard, touchpad or plugged usb mouse.
 
-config MTK_SENSOR_SUPPORT
-	bool "MTK_SENSOR_SUPPORT"
-	help
-	  sensor config to sensor port sensor feature in project
-
-config MTK_AUTO_DETECT_ACCELEROMETER
-	bool "MTK_AUTO_DETECT_ACCELEROMETER"
-	depends on MTK_SENSOR_SUPPORT
-	help
-	  one load to support different accelerometer sensor
-
-config MTK_AUTO_DETECT_MAGNETOMETER
-	bool "MTK_AUTO_DETECT_MAGNETOMETER"
-	help
-	  one load to support different magnetometer sensor
-
-config MTK_AUTO_DETECT_ALSPS
-	bool "MTK_AUTO_DETECT_ALSPS"
-	help
-	  This feature Option is used for projects which using more than one
-	  ALSPS sensors, more than one ALSPS drivers can be builded in to
-	  project and be auto detected by setting this option to yes 
-
-# Custom
-config CUSTOM_KERNEL_ACCELEROMETER
-	bool "CUSTOM_KERNEL_ACCELEROMETER"
-	help
-	  accelerometer sensor to detect accelerometer from x y z axis.
-
-config CUSTOM_KERNEL_GYROSCOPE
-	bool "CUSTOM_KERNEL_GYROSCOPE"
-	help
-	  gyroscope driver
-
-config CUSTOM_KERNEL_ALSPS
-	bool "CUSTOM_KERNEL_ALSPS"
-	help
-	  ALSPS sensor driverto detect ambint light and the object is close
-	  or far awary from device
-
 config CUSTOM_SEC_AUTH_SUPPORT
 	bool "CUSTOM_SEC_AUTH_SUPPORT"
 	help
 	  Support customer to implement and apply their own RSA security
 	  functions
-
-config CUSTOM_KERNEL_MAGNETOMETER
-	bool "CUSTOM_KERNEL_MAGNETOMETER"
-	help
-	  compass driver to detect compass raw data and report orientatino
-	  data 
-      
-config CUSTOM_KERNEL_BAROMETER
-	bool "CUSTOM_KERNEL_BAROMETER"
-	help
-	  To detect barometer raw data
-
-config MTK_SENSOR_HUB_SUPPORT
-	bool "MTK_SENSOR_HUB_SUPPORT"
-	help
-	  To enable MTK sensor hub
-	  
-config CUSTOM_KERNEL_SENSORHUB
-	string "CUSTOM_KERNEL_SENSORHUB"
-	help
-	  Kernel space sensor hub driver. Define project used all sensor hub
-	  sensors. The value is combination of sensor hub driver(get data...etc)
-	  and sensor hub framework driver(transmit shf info)
-
-config CUSTOM_KERNEL_STEP_COUNTER
-	string "CUSTOM_KERNEL_STEP_COUNTER"
-	help
-	  Kernel space step counter driver. 
-
-config CUSTOM_KERNEL_SIGNIFICANT_MOTION_SENSOR
-	string "CUSTOM_KERNEL_SIGNIFICANT_MOTION_SENSOR"
-	help
-	  Kernel space sigificant motion sensor driver. 
-
-config CUSTOM_KERNEL_ACTIVITY_SENSOR
-	string "CUSTOM_KERNEL_ACTIVITY_SENSOR"
-	help
-	  Kernel space activity sensor driver. 
-
-config CUSTOM_KERNEL_PICK_UP_SENSOR
-	string "CUSTOM_KERNEL_PICK_UP_SENSOR"
-	help
-	  Kernel space pick up sensor driver. 
-
-config CUSTOM_KERNEL_SHAKE_SENSOR
-	string "CUSTOM_KERNEL_SHAKE_SENSOR"
-	help
-	  Kernel space shake sensor driver. 
-
-config CUSTOM_KERNEL_FACE_DOWN_SENSOR
-	string "CUSTOM_KERNEL_FACE_DOWN_SENSOR"
-	help
-	  Kernel space face down sensor driver. 
-
-config CUSTOM_KERNEL_IN_POCKET_SENSOR
-	string "CUSTOM_KERNEL_IN_POCKET_SENSOR"
-	help
-	  Kernel space in pocket detection sensor driver. 
-
-config CUSTOM_KERNEL_PEDOMETER
-	string "CUSTOM_KERNEL_PEDOMETER"
-	help
-	  Kernel space pedometer sensor driver. 
-
-config CUSTOM_KERNEL_HEART_RATE_SENSOR
-	string "CUSTOM_KERNEL_HEART_RATE_SENSOR"
-	help
-	  Kernel space heart rate sensor driver. 
-
-config CUSTOM_KERNEL_TILT_DETECTOR_SENSOR
-	string "CUSTOM_KERNEL_TILT_DETECTOR_SENSOR"
-	help
-	  Kernel space tilt detector sensor driver. 
-
-config CUSTOM_KERNEL_WAKE_GESTURE_SENSOR
-	string "CUSTOM_KERNEL_WAKE_GESTURE_SENSOR"
-	help
-	  Kernel space wake up gesture sensor driver. 
-
-config CUSTOM_KERNEL_GLANCE_GESTURE_SENSOR
-	string "CUSTOM_KERNEL_GLANCE_GESTURE_SENSOR"
-	help
-	  Kernel space glance(touch wake up) gesture sensor driver. 
 
 config CUSTOM_KERNEL_IMGSENSOR
 	string "CUSTOM_KERNEL_IMGSENSOR"
@@ -438,4 +315,102 @@ source "drivers/misc/mediatek/emi_mpu/Kconfig"
 source "drivers/misc/mediatek/emi_bwl/Kconfig"
 source "drivers/misc/mediatek/dbg_dump/Kconfig"
 
+menu "Mediatek Sensors"
+config MTK_SENSOR_SUPPORT
+	bool "MTK_SENSOR_SUPPORT"
+	help
+	  sensor config to sensor port sensor feature in project
+
+config MTK_AUTO_DETECT_MAGNETOMETER
+	bool "MTK_AUTO_DETECT_MAGNETOMETER"
+	help
+	  one load to support different magnetometer sensor
+
+config CUSTOM_KERNEL_MAGNETOMETER
+	bool "CUSTOM_KERNEL_MAGNETOMETER"
+	help
+	  compass driver to detect compass raw data and report orientatino
+	  data
+
+config CUSTOM_KERNEL_BAROMETER
+	bool "CUSTOM_KERNEL_BAROMETER"
+	help
+	  To detect barometer raw data
+
+config MTK_SENSOR_HUB_SUPPORT
+	bool "MTK_SENSOR_HUB_SUPPORT"
+	help
+	  To enable MTK sensor hub
+
+config CUSTOM_KERNEL_SENSORHUB
+	string "CUSTOM_KERNEL_SENSORHUB"
+	help
+	  Kernel space sensor hub driver. Define project used all sensor hub
+	  sensors. The value is combination of sensor hub driver(get data...etc)
+	  and sensor hub framework driver(transmit shf info)
+
+config CUSTOM_KERNEL_STEP_COUNTER
+	string "CUSTOM_KERNEL_STEP_COUNTER"
+	help
+	  Kernel space step counter driver. 
+
+config CUSTOM_KERNEL_SIGNIFICANT_MOTION_SENSOR
+	string "CUSTOM_KERNEL_SIGNIFICANT_MOTION_SENSOR"
+	help
+	  Kernel space sigificant motion sensor driver. 
+
+config CUSTOM_KERNEL_ACTIVITY_SENSOR
+	string "CUSTOM_KERNEL_ACTIVITY_SENSOR"
+	help
+	  Kernel space activity sensor driver. 
+
+config CUSTOM_KERNEL_PICK_UP_SENSOR
+	string "CUSTOM_KERNEL_PICK_UP_SENSOR"
+	help
+	  Kernel space pick up sensor driver. 
+
+config CUSTOM_KERNEL_SHAKE_SENSOR
+	string "CUSTOM_KERNEL_SHAKE_SENSOR"
+	help
+	  Kernel space shake sensor driver. 
+
+config CUSTOM_KERNEL_FACE_DOWN_SENSOR
+	string "CUSTOM_KERNEL_FACE_DOWN_SENSOR"
+	help
+	  Kernel space face down sensor driver. 
+
+config CUSTOM_KERNEL_IN_POCKET_SENSOR
+	string "CUSTOM_KERNEL_IN_POCKET_SENSOR"
+	help
+	  Kernel space in pocket detection sensor driver. 
+
+config CUSTOM_KERNEL_PEDOMETER
+	string "CUSTOM_KERNEL_PEDOMETER"
+	help
+	  Kernel space pedometer sensor driver. 
+
+config CUSTOM_KERNEL_HEART_RATE_SENSOR
+	string "CUSTOM_KERNEL_HEART_RATE_SENSOR"
+	help
+	  Kernel space heart rate sensor driver. 
+
+config CUSTOM_KERNEL_TILT_DETECTOR_SENSOR
+	string "CUSTOM_KERNEL_TILT_DETECTOR_SENSOR"
+	help
+	  Kernel space tilt detector sensor driver. 
+
+config CUSTOM_KERNEL_WAKE_GESTURE_SENSOR
+	string "CUSTOM_KERNEL_WAKE_GESTURE_SENSOR"
+	help
+	  Kernel space wake up gesture sensor driver. 
+
+config CUSTOM_KERNEL_GLANCE_GESTURE_SENSOR
+	string "CUSTOM_KERNEL_GLANCE_GESTURE_SENSOR"
+	help
+	  Kernel space glance(touch wake up) gesture sensor driver. 
+
+source "drivers/misc/mediatek/accelerometer/Kconfig"
+source "drivers/misc/mediatek/alsps/Kconfig"
+source "drivers/misc/mediatek/gyroscope/Kconfig"
+endmenu
 endif

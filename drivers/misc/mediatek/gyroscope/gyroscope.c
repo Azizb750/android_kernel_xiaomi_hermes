@@ -487,6 +487,8 @@ static struct platform_driver gyroscope_driver = {
 	}
 };
 
+int bmi160_gyro_init_flag = -1; 
+
 static int gyro_real_driver_init(void) 
 {
     int i =0;
@@ -499,7 +501,7 @@ static int gyro_real_driver_init(void)
 	  {
 	    	GYRO_LOG(" gyro try to init driver %s\n", gyroscope_init_list[i]->name);
 	    	err = gyroscope_init_list[i]->init();
-		if(0 == err)
+		if ((0 == err) && (0 == bmi160_gyro_init_flag))
 		{
 		   GYRO_LOG(" gyro real driver %s probe ok\n", gyroscope_init_list[i]->name);
 		   break;

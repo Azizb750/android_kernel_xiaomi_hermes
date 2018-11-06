@@ -289,6 +289,10 @@ static int check_otp_info(int index)
 	int flag, i;
 	int address_start = 0x7010;
 	int address_end = 0x7010;
+	write_cmos_sensor(0x0103,0x01);// ; software reset
+	mDELAY(10);
+	write_cmos_sensor(0x0100, 0x01); //;01	
+    mDELAY(5);
 	OV5670_OTP_read_begin();
 	// read otp into buffer
 	write_cmos_sensor(0x3d84, 0xc0); // program disable, manual mode
@@ -511,29 +515,10 @@ static int update_otp_wb()
 		return 1;
 	}
 
-	for(i=1;i<=4;i++) {
-		temp = check_otp_info(i);
-		if (temp == 2) {
-			info_index = i;
-			break;
-		}
-	}
-	if (i>3) {
-		// no valid wb OTP data
-		printk("pxs_ov5670_otp	no valid info OTP data  %s \n", __func__); //pei_add
-		return 1;
-	}
-	printk("pxs_ov5670_otp	otp_index=%d, otp_info_index=%d %s \n", otp_index, info_index, __func__); //pei_add	
+	printk("pxs_ov5670_otp	otp_index=%d %s \n", otp_index, __func__); //pei_add	
 
-	read_otp_info(info_index, &current_otp);
-	if (current_otp.module_integrator_id == 1) {
-		RG_Ratio_Typical = 331;  // 259
-		BG_Ratio_Typical = 316;	 //324
-	} 
-	if (current_otp.module_integrator_id == 7) {
-		RG_Ratio_Typical = 272;  // 259
-		BG_Ratio_Typical = 355;	 //324
-	}
+    RG_Ratio_Typical = 331;  // 259
+    BG_Ratio_Typical = 316;	 //324
 
 	read_otp_wb(otp_index, &current_otp);
 	rg = current_otp.rg_ratio ;  // 259
@@ -1504,6 +1489,8 @@ static void slim_video_setting()
 *************************************************************************/
 static kal_uint32 get_imgsensor_id(UINT32 *sensor_id) 
 {
+	struct otp_struct current_otp;
+	int info_index = 0, temp = 0, q = 0;
 	kal_uint8 i = 0;
 	kal_uint8 retry = 2;
 	//sensor have two i2c address 0x6c 0x6d & 0x21 0x20, we should detect the module used i2c address
@@ -1513,10 +1500,24 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 		spin_unlock(&imgsensor_drv_lock);
 		do {
 			*sensor_id = ((read_cmos_sensor(0x300B) << 8) | read_cmos_sensor(0x300C));
-			if (*sensor_id == imgsensor_info.sensor_id) {				
-				LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);	  
-				return ERROR_NONE;
-			}	
+			*sensor_id = *sensor_id + 3;
+			if (*sensor_id == imgsensor_info.sensor_id) {
+				for(q=1;q<=4;q++) {
+					temp = check_otp_info(q);
+					if (temp == 2) {
+						info_index = q;
+						break;
+					}
+				}
+				read_otp_info(info_index, &current_otp);
+				if ((current_otp.module_integrator_id == 1) && (current_otp.lens_id == 2)) {
+					LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);	  
+					return ERROR_NONE;
+				} else {
+					*sensor_id = 0xFFFFFFFF;
+					return ERROR_SENSOR_CONNECT_FAIL;
+				}
+			}
 			LOG_INF("Read sensor id fail, id: 0x%x\n", imgsensor.i2c_write_id,*sensor_id);
 			retry--;
 		} while(retry > 0);
@@ -1563,11 +1564,13 @@ static kal_uint32 open(void)
 		spin_unlock(&imgsensor_drv_lock);
 		do {
 			sensor_id = ((read_cmos_sensor(0x300B) << 8) | read_cmos_sensor(0x300C));
-			if (sensor_id == imgsensor_info.sensor_id) {				
-				LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);	  
+			sensor_id = sensor_id + 3;
+			if (sensor_id == imgsensor_info.sensor_id) {
+				LOG_INF("i2c write id: 0x%x, sensor id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);
 				break;
-			}	
-			LOG_INF("Read sensor id fail, id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);
+			}
+			if (sensor_id != imgsensor_info.sensor_id)
+				LOG_INF("Read sensor id fail, id: 0x%x\n", imgsensor.i2c_write_id,sensor_id);
 			retry--;
 		} while(retry > 0);
 		i++;

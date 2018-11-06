@@ -87,10 +87,10 @@
 
 #define ID_OFFSET                           (1)
 
-#define MAX_ANDROID_SENSOR_NUM	(ID_SENSOR_MAX_HANDLE + 1)
+//#define MAX_ANDROID_SENSOR_NUM	(ID_SENSOR_MAX_HANDLE + 1)
 //alps\kernel-3.10\drivers\misc\mediatek\hwmon\hwmsen\hwmsen_dev.c
 //hwmsen_unlocked_ioctl copy from user only limit 1400 bytes
-//#define MAX_ANDROID_SENSOR_NUM	(ID_WAKE_GESTURE +1) //not support MTK virtual sensor (all of them are one shot), otherwise fail at copy_form_user, size too large
+#define MAX_ANDROID_SENSOR_NUM	(ID_TILT_DETECTOR +1) //not support MTK virtual sensor (all of them are one shot), otherwise fail at copy_form_user, size too large
 
 
 /*---------------------------------------------------------------------------*/
