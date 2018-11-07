@@ -669,54 +669,16 @@ static int BMI160_ACC_ReadCalibration(struct i2c_client *client, int dat[BMI160_
     return err;
 }
 /*----------------------------------------------------------------------------*/
-static int BMI160_ACC_ReadCalibrationEx(struct i2c_client *client, int act[BMI160_ACC_AXES_NUM], int raw[BMI160_ACC_AXES_NUM])
-{
-	/*raw: the raw calibration data; act: the actual calibration data*/
-	struct bmi160_acc_i2c_data *obj = obj_i2c_data;
-	int mul;
-
-#ifdef SW_CALIBRATION
-	mul = 0;//only SW Calibration, disable HW Calibration
-#else
-	int err;
-	err = BMI160_ACC_ReadOffset(client, obj->offset);
-	if(err) {
-		GSE_ERR("read offset fail, %d\n", err);
-		return err;
-	}
-	mul = obj->reso->sensitivity/bmi160_acc_offset_resolution.sensitivity;
-#endif
-
-	raw[BMI160_ACC_AXIS_X] = obj->offset[BMI160_ACC_AXIS_X]*mul + obj->cali_sw[BMI160_ACC_AXIS_X];
-	raw[BMI160_ACC_AXIS_Y] = obj->offset[BMI160_ACC_AXIS_Y]*mul + obj->cali_sw[BMI160_ACC_AXIS_Y];
-	raw[BMI160_ACC_AXIS_Z] = obj->offset[BMI160_ACC_AXIS_Z]*mul + obj->cali_sw[BMI160_ACC_AXIS_Z];
-
-	act[obj->cvt.map[BMI160_ACC_AXIS_X]] = obj->cvt.sign[BMI160_ACC_AXIS_X]*raw[BMI160_ACC_AXIS_X];
-	act[obj->cvt.map[BMI160_ACC_AXIS_Y]] = obj->cvt.sign[BMI160_ACC_AXIS_Y]*raw[BMI160_ACC_AXIS_Y];
-	act[obj->cvt.map[BMI160_ACC_AXIS_Z]] = obj->cvt.sign[BMI160_ACC_AXIS_Z]*raw[BMI160_ACC_AXIS_Z];
-
-	return 0;
-}
-/*----------------------------------------------------------------------------*/
 static int BMI160_ACC_WriteCalibration(struct i2c_client *client, int dat[BMI160_ACC_AXES_NUM])
 {
 	struct bmi160_acc_i2c_data *obj = obj_i2c_data;
 	int err = 0;
-	int cali[BMI160_ACC_AXES_NUM], raw[BMI160_ACC_AXES_NUM];
+	int cali[BMI160_ACC_AXES_NUM] = {0}, raw[BMI160_ACC_AXES_NUM] = {0};
 #ifndef SW_CALIBRATION
 	int lsb = bmi160_acc_offset_resolution.sensitivity;
 	int divisor = obj->reso->sensitivity/lsb;
 #endif
 
-//smosia
-#if 0
-	err = BMI160_ACC_ReadCalibrationEx(client, cali, raw);
-	if(err)	/*offset will be updated in obj->offset*/
-	{
-		GSE_ERR("read offset fail, %d\n", err);
-		return err;
-	}
-#endif
 	GSE_LOG("OLDOFF: (%+3d %+3d %+3d): (%+3d %+3d %+3d) / (%+3d %+3d %+3d)\n",
 		raw[BMI160_ACC_AXIS_X], raw[BMI160_ACC_AXIS_Y], raw[BMI160_ACC_AXIS_Z],
 		obj->offset[BMI160_ACC_AXIS_X], obj->offset[BMI160_ACC_AXIS_Y], obj->offset[BMI160_ACC_AXIS_Z],
