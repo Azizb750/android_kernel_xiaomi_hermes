@@ -122,10 +122,15 @@ struct bmg_i2c_data {
 	atomic_t	fir_en;
 	struct data_filter	fir;
 #endif
+
+/*hzy add for early suspend*/
+#if defined(CONFIG_HAS_EARLYSUSPEND)
+    struct early_suspend    early_drv;
+#endif
 };
 
 static struct gyro_init_info bmi160_gyro_init_info;
-extern int bmi160_gyro_init_flag; // 0<==>OK -1 <==> fail
+static int bmi160_gyro_init_flag =-1; // 0<==>OK -1 <==> fail
 static struct i2c_driver bmg_i2c_driver;
 static struct bmg_i2c_data *obj_i2c_data;
 
@@ -160,16 +165,12 @@ static int bmg_i2c_read_block(struct i2c_client *client, u8 addr,
 	u8 beg = addr;
 	struct i2c_msg msgs[2] = {
 		{
-			.addr = client->addr,	
-			.flags = 0,
-			.len = 1,	
-			.buf = &beg
+			.addr = client->addr,	.flags = 0,
+			.len = 1,	.buf = &beg
 		},
 		{
-			.addr = client->addr,	
-			.flags = I2C_M_RD,
-			.len = len,	
-			.buf = data,
+			.addr = client->addr,	.flags = I2C_M_RD,
+			.len = len,	.buf = data,
 		}
 	};
 	int err;
@@ -1577,6 +1578,7 @@ static struct miscdevice bmg_device = {
 	.fops = &bmg_fops,
 };
 
+#ifndef CONFIG_HAS_EARLYSUSPEND
 static int bmg_suspend(struct i2c_client *client, pm_message_t msg)
 {
 	struct bmg_i2c_data *obj = obj_i2c_data;
@@ -1622,6 +1624,49 @@ static int bmg_resume(struct i2c_client *client)
 	atomic_set(&obj->suspend, 0);
 	return 0;
 }
+#else
+static void bmi160_gyro_early_suspend(struct early_suspend *h)
+{
+	struct bmg_i2c_data *obj = obj_i2c_data;
+	int err = 0;
+	GYRO_FUN();
+
+	if (obj == NULL) {
+		GYRO_ERR("null pointer\n");
+		return;
+	}
+
+	atomic_set(&obj->suspend, 1);
+	err = bmg_set_powermode(obj->client, BMG_SUSPEND_MODE);
+	if (err) {
+		GYRO_ERR("bmg set suspend mode failed, err = %d\n",err);
+		return;
+	}
+	bmg_power(obj->hw, 0);
+	return;
+}
+static void bmi160_gyro_late_resume(struct early_suspend *h)
+{
+	struct bmg_i2c_data *obj = obj_i2c_data;
+	int err;
+	GYRO_FUN();
+
+	if (obj == NULL) {
+		GYRO_ERR("null pointer\n");
+		return;
+	}
+
+	bmg_power(obj->hw, 1);
+	err = bmg_init_client(obj->client, 0);
+	if (err) {
+		GYRO_ERR("initialize client failed, err = %d\n", err);
+		return;
+	}
+
+	atomic_set(&obj->suspend, 0);
+	return;
+}
+#endif/*CONFIG_HAS_EARLYSUSPEND*/
 
 static int bmg_i2c_detect(struct i2c_client *client,
 		struct i2c_board_info *info)
@@ -1641,7 +1686,6 @@ static int bmi160_gyro_open_report_data(int open)
 
 static int bmi160_gyro_enable_nodata(int en)
 {
-	//smosia
 #ifdef USE_DAEMON
 	if(en == 1) {
 		atomic_set(&g_flag, 1);
@@ -1693,7 +1737,6 @@ static int bmi160_gyro_enable_nodata(int en)
 
 static int bmi160_gyro_set_delay(u64 ns)
 {
-	//smosia
 #ifdef USE_DAEMON
 	int value = (int)ns/1000/1000 ;
 
@@ -1706,32 +1749,6 @@ static int bmi160_gyro_set_delay(u64 ns)
 
 	/* wake up the wait queue */
 	wake_up(&uplink_event_flag_wq);
-#else
-	int err;
-	int value = (int)ns/1000/1000 ;
-	/* Currently, fix data rate to 100Hz. */
-	int sample_delay = BMI160_GYRO_ODR_100HZ;
-	struct bmg_i2c_data *priv = obj_i2c_data;
-
-	GYRO_LOG("sensor delay command: %d, sample_delay = %d\n",
-			value, sample_delay);
-
-	err = bmg_set_datarate(priv->client, sample_delay);
-	if (err < 0)
-		GYRO_ERR("set delay parameter error\n");
-
-	if (value >= 40)
-		atomic_set(&priv->filter, 0);
-	else {
-	#if defined(CONFIG_BMG_LOWPASS)
-		priv->fir.num = 0;
-		priv->fir.idx = 0;
-		priv->fir.sum[BMG_AXIS_X] = 0;
-		priv->fir.sum[BMG_AXIS_Y] = 0;
-		priv->fir.sum[BMG_AXIS_Z] = 0;
-		atomic_set(&priv->filter, 1);
-	#endif	
-	}
 #endif
 
 	return 0;
@@ -1739,7 +1756,6 @@ static int bmi160_gyro_set_delay(u64 ns)
 
 static int bmi160_gyro_get_data(int* x ,int* y,int* z, int* status)
 {
-	//smosia
 #ifdef USE_DAEMON
 
 	mutex_lock(&sensor_data_mutex);
@@ -1833,7 +1849,7 @@ static int bmg_i2c_probe(struct i2c_client *client,
 	err = gyro_register_control_path(&ctl);
 	if(err) {
 		GYRO_ERR("register gyro control path err\n");
-		goto exit_create_attr_failed;
+		goto exit_kfree;
 	}
 
 	data.get_data = bmi160_gyro_get_data;
@@ -1841,8 +1857,15 @@ static int bmg_i2c_probe(struct i2c_client *client,
 	err = gyro_register_data_path(&data);
 	if(err) {
 		GYRO_ERR("gyro_register_data_path fail = %d\n", err);
-		goto exit_create_attr_failed;
+		goto exit_kfree;
 	}
+
+#ifdef CONFIG_HAS_EARLYSUSPEND
+	obj->early_drv.level    = EARLY_SUSPEND_LEVEL_DISABLE_FB - 2,
+	obj->early_drv.suspend  = bmi160_gyro_early_suspend,
+	obj->early_drv.resume   = bmi160_gyro_late_resume,
+	register_early_suspend(&obj->early_drv);
+#endif
 
 	bmi160_gyro_init_flag =0;
 	GYRO_LOG("%s: OK\n", __func__);
@@ -1853,6 +1876,7 @@ exit_create_attr_failed:
 exit_misc_device_register_failed:
 exit_init_client_failed:
 exit_hwmsen_get_convert_failed:
+exit_kfree:
 	kfree(obj);
 exit:
 	bmi160_gyro_init_flag =-1;
@@ -1886,8 +1910,10 @@ static struct i2c_driver bmg_i2c_driver = {
 	.probe = bmg_i2c_probe,
 	.remove	= bmg_i2c_remove,
 	.detect	= bmg_i2c_detect,
+#if !defined(CONFIG_HAS_EARLYSUSPEND)
 	.suspend = bmg_suspend,
 	.resume = bmg_resume,
+#endif
 	.id_table = bmg_i2c_id,
 };
 

@@ -1,0 +1,12 @@
+config MTK_AUTO_DETECT_MAGNETOMETER
+	bool "MTK_AUTO_DETECT_MAGNETOMETER"
+	help
+	  one load to support different magnetometer sensor
+
+config CUSTOM_KERNEL_MAGNETOMETER
+	bool "CUSTOM_KERNEL_MAGNETOMETER"
+	help
+	  compass driver to detect compass raw data and report orientatino
+	  data
+
+source "drivers/misc/mediatek/magnetometer/akm09911-new/Kconfig"

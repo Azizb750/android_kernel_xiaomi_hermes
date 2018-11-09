@@ -31,9 +31,8 @@ static dev_t g_DW9761BAF_devno;
 static struct cdev * g_pDW9761BAF_CharDrv = NULL;
 static struct class *actuator_class = NULL;
 
-static int  g_s4DW9761BAF_Opened = 0;
+static int g_s4DW9761BAF_Opened = 0;
 static long g_i4MotorStatus = 0;
-static long g_i4Dir = 0;
 static unsigned int g_u4DW9761BAF_INF = 0;
 static unsigned int g_u4DW9761BAF_MACRO = 1023;
 static unsigned int g_u4TargetPosition = 0;
@@ -41,58 +40,14 @@ static unsigned int g_u4CurrPosition   = 0;
 
 static unsigned int g_AF_infinite_Cali = 0;
 
-static int g_sr = 3;
-
-static int i2c_read(u8 a_u2Addr , u8 * a_puBuff)
-{
-    int  i4RetValue = 0;
-    char puReadCmd[1] = {(char)(a_u2Addr)};
-    
-    
-    
-    i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puReadCmd, 1);
-    if (i4RetValue < 0) {
-        DW9761BAFDB(" I2C write failed!! \n");
-        return -1;
-    }
-    
-    i4RetValue = i2c_master_recv(g_pstDW9761BAF_I2Cclient, (char *)a_puBuff, 1);
-    if (i4RetValue != 1) {
-        DW9761BAFDB(" I2C read failed!! \n");
-        return -1;
-    }
-    
-    return 0;
-}
-
-#define DW9761B_OTP_WRITE_ID         0xB0
 extern int iReadRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u8 * a_pRecvData, u16 a_sizeRecvData, u16 i2cId);
 inline kal_uint16 DW9761B_read_reg(kal_uint32 addr)
 {
     kal_uint16 get_byte = 0;
     
     char puSendCmd[2] = {(char)(addr >> 8) , (char)(addr & 0xFF) };
-    iReadRegI2C(puSendCmd , 2, (u8*)&get_byte, 1, DW9761B_OTP_WRITE_ID);
+    iReadRegI2C(puSendCmd , 2, (u8*)&get_byte, 1, 0xB0);
     return get_byte&0x00ff;
-}
-
-static u8 read_data(u8 addr)
-{
-    u8 get_byte=0;
-    i2c_read( addr ,&get_byte);
-    DW9761BAFDB("[DW9761BAF]  get_byte %d \n",  get_byte);
-    return get_byte;
-}
-
-static int s4DW9761BAF_ReadReg(unsigned short * a_pu2Result)
-{
-    
-    
-    
-    *a_pu2Result = (read_data(0x03) << 8) + (read_data(0x04)&0xff);
-    
-    DW9761BAFDB("[DW9761BAF]  s4DW9761AF_ReadReg %d \n",  *a_pu2Result);
-    return 0;
 }
 
 static int s4DW9761BAF_WriteReg(u16 a_u2Data)
@@ -102,10 +57,6 @@ static int s4DW9761BAF_WriteReg(u16 a_u2Data)
     char puSendCmd[2] = {0x03,(char)(a_u2Data >> 8)};
     
     DW9761BAFDB("[DW9761BAF]  write %d \n",  a_u2Data);
-    
-    
-    
-    
     
     i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd, 2);
     
@@ -145,9 +96,7 @@ inline static int getDW9761BAFInfo(__user stDW9761BAF_MotorInfo * pstMotorInfo)
 }
 
 inline static int moveDW9761BAF(unsigned long a_u4Position)
-{
-    int ret = 0;
-    
+{    
     if((a_u4Position > g_u4DW9761BAF_MACRO) || (a_u4Position < g_u4DW9761BAF_INF))
     {
         DW9761BAFDB("[DW9761BAF] out of range \n");
@@ -170,7 +119,6 @@ inline static int moveDW9761BAF(unsigned long a_u4Position)
     DW9761BAFDB("[DW9761BAF] move [curr] %d [target] %d\n", g_u4CurrPosition, g_u4TargetPosition);
     
     spin_lock(&g_DW9761BAF_SpinLock);
-    g_sr = 3;
     g_i4MotorStatus = 0;
     spin_unlock(&g_DW9761BAF_SpinLock);	
     
@@ -242,31 +190,6 @@ static long DW9761BAF_Ioctl(
     return i4RetValue;
 }
 
-#if 1  
-static int s4DW9761BAF_WriteReg2(u8 a_u2Addr, u16 a_u2Data)
-{
-    int  i4RetValue = 0;
-    
-    char puSendCmd[2] = {0x03,(char)(a_u2Data >> 8)};
-    
-    DW9761BAFDB("[DW9761BAF]  write addr =%d, data =%d \n",  a_u2Addr,a_u2Data);
- 
-    i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd, 2);
-    
-    puSendCmd[0] = a_u2Addr;
-    puSendCmd[1] = a_u2Data & 0xff;
-    i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd, 2);
-    
-    if (i4RetValue < 0) 
-    {
-        DW9761BAFDB("[DW9761BAF] I2C send failed!! \n");
-        return -1;
-    }
-    
-    return 0;
-}
-#endif
-
 static int DW9761BAF_Open(struct inode * a_pstInode, struct file * a_pstFile)
 {
     long i4RetValue = 0;
@@ -291,12 +214,10 @@ static int DW9761BAF_Open(struct inode * a_pstInode, struct file * a_pstFile)
     VcmID = DW9761B_read_reg(0x0005);
     reg_12 = DW9761B_read_reg(0x0012);
     reg_11 = DW9761B_read_reg(0x0011);
-    g_AF_infinite_Cali = reg_12 << 8 | reg_11;
+    g_AF_infinite_Cali = reg_11 | reg_12 << 8;
     
     DW9761BAFDB("[DW9761BAF] VcmID[%x]\n", VcmID);
-    
-    i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd2, 2);
-    
+        
     i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd3, 2);
     msleep(1);
     if (VcmID == 0x01)
@@ -311,19 +232,11 @@ static int DW9761BAF_Open(struct inode * a_pstInode, struct file * a_pstFile)
         puSendCmd2[0] = 0x06;
         puSendCmd2[1] = 0xA0;
         puSendCmd3[0] = 0x07;
-        puSendCmd3[1] = 0xA0;
+        puSendCmd3[1] = 0x06;
     }
     DW9761BAFDB("[DW9761BAF] tvib [%x] [%x]\n", puSendCmd2[1], puSendCmd3[1]);
     i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd2, 2);
-    
     i4RetValue = i2c_master_send(g_pstDW9761BAF_I2Cclient, puSendCmd3, 2);
-    
-    #if 0
-    s4DW9761BAF_WriteReg2(0x02,0x02); 
-    s4DW9761BAF_WriteReg2(0x06,0x60); 
-    s4DW9761BAF_WriteReg2(0x07,0x03); 
-    #endif
-    
     DW9761BAFDB("[DW9761BAF] DW9761AF_Open - End\n");
     
     return 0;
@@ -345,8 +258,6 @@ static int DW9761BAF_Release(struct inode * a_pstInode, struct file * a_pstFile)
         s4DW9761BAF_WriteReg(g_AF_infinite_Cali-100);
         msleep(27);
         s4DW9761BAF_WriteReg(g_AF_infinite_Cali-150);
-        msleep(27);
-        s4DW9761BAF_WriteReg(g_AF_infinite_Cali-200);
         msleep(27);
         s4DW9761BAF_WriteReg(0);
         spin_lock(&g_DW9761BAF_SpinLock);
