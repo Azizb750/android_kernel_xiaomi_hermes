@@ -63,7 +63,7 @@ struct pwm_spec_config {
 			U32 SEND_DATA1;
 			U32 WAVE_NUM;
 		} PWM_MODE_FIFO_REGS;
-/*
+
 		//for memory mode
 		struct _PWM_MODE_MEMORY_REGS {
 			U32 IDLE_VALUE;
@@ -103,7 +103,7 @@ struct pwm_spec_config {
 			U16 PWM5_DELAY_DUR;
 			U32 PWM5_DELAY_CLK;
 		}PWM_MODE_DELAY_REGS;
-*/
+
 	};
 };
 

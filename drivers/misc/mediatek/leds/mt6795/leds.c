@@ -41,6 +41,7 @@ static unsigned int bl_brightness_hal = 102;
 static unsigned int bl_duty_hal = 21;
 static unsigned int bl_div_hal = CLK_DIV1;
 static unsigned int bl_frequency_hal = 32000;
+static unsigned char led_flag;
 //for button led don't do ISINK disable first time
 static int button_flag_isink0 = 0;
 static int button_flag_isink1 = 0;
@@ -853,6 +854,445 @@ static void power_switch(int level)
 
 #endif
 
+#define HERMES_LED_RED    1
+#define HERMES_LED_GREEN  2
+#define HERMES_LED_BLUE   3
+#define HERMES_LED_YELLOW 4
+#define HERMES_LED_CYAN   5
+#define HERMES_LED_VIOLET 6
+#define HERMES_LED_WHITE  7
+
+int hermes_static_led(int led_type, int level)
+{
+    if (led_type) {
+        if (level == 0 && led_flag == 0)
+            return 0;
+
+        switch (led_type) {
+            case HERMES_LED_RED:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(0);
+                mt6331_upmu_set_isink_ch0_step(0);
+                mt6331_upmu_set_isink_dim0_duty(12);
+                mt6331_upmu_set_isink_dim0_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_GREEN:
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(0);
+                mt6331_upmu_set_isink_ch1_step(1);
+                mt6331_upmu_set_isink_dim1_duty(8);
+                mt6331_upmu_set_isink_dim1_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_BLUE:
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(0);
+                mt6331_upmu_set_isink_ch2_step(1);
+                mt6331_upmu_set_isink_dim2_duty(30);
+                mt6331_upmu_set_isink_dim2_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_YELLOW:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(0);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_dim0_duty(12);
+                mt6331_upmu_set_isink_dim0_fsel(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(0);
+                mt6331_upmu_set_isink_ch1_step(2);
+                mt6331_upmu_set_isink_dim1_duty(8);
+                mt6331_upmu_set_isink_dim1_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_CYAN:
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(0);
+                mt6331_upmu_set_isink_ch1_step(2);
+                mt6331_upmu_set_isink_dim1_duty(12);
+                mt6331_upmu_set_isink_dim1_fsel(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(0);
+                mt6331_upmu_set_isink_ch2_step(2);
+                mt6331_upmu_set_isink_dim2_duty(15);
+                mt6331_upmu_set_isink_dim2_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_VIOLET:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(0);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_dim0_duty(15);
+                mt6331_upmu_set_isink_dim0_fsel(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(0);
+                mt6331_upmu_set_isink_ch2_step(2);
+                mt6331_upmu_set_isink_dim2_duty(15);
+                mt6331_upmu_set_isink_dim2_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_WHITE:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(0);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_dim0_duty(12);
+                mt6331_upmu_set_isink_dim0_fsel(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(0);
+                mt6331_upmu_set_isink_ch1_step(2);
+                mt6331_upmu_set_isink_dim1_duty(15);
+                mt6331_upmu_set_isink_dim1_fsel(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(0);
+                mt6331_upmu_set_isink_ch2_step(2);
+                mt6331_upmu_set_isink_dim2_duty(15);
+                mt6331_upmu_set_isink_dim2_fsel(0);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            default:
+                mutex_unlock(&leds_pmic_mutex);
+                break;
+        }
+    }
+    return -1;
+}
+
+
+int hermes_breath_led(int led_type, int level)
+{
+    if (led_type) {
+        if (level == 0 && led_flag == 0)
+            return 0;
+
+        mt6331_upmu_set_rg_driver_rst(1);
+        mdelay(100);
+        mt6331_upmu_set_rg_driver_rst(0);
+        switch (led_type) {
+            case HERMES_LED_RED:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(1);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_breath0_ton_sel(8);
+                mt6331_upmu_set_isink_breath0_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_GREEN:
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(1);
+                mt6331_upmu_set_isink_ch1_step(1);
+                mt6331_upmu_set_isink_breath1_ton_sel(8);
+                mt6331_upmu_set_isink_breath1_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_BLUE:
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(1);
+                mt6331_upmu_set_isink_ch2_step(1);
+                mt6331_upmu_set_isink_breath2_ton_sel(8);
+                mt6331_upmu_set_isink_breath2_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_YELLOW:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(1);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_breath0_ton_sel(8);
+                mt6331_upmu_set_isink_breath0_toff_sel(4);
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(1);
+                mt6331_upmu_set_isink_ch1_step(2);
+                mt6331_upmu_set_isink_breath1_ton_sel(8);
+                mt6331_upmu_set_isink_breath1_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_CYAN:
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(1);
+                mt6331_upmu_set_isink_ch1_step(2);
+                mt6331_upmu_set_isink_breath1_ton_sel(8);
+                mt6331_upmu_set_isink_breath1_toff_sel(4);
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(1);
+                mt6331_upmu_set_isink_ch2_step(2);
+                mt6331_upmu_set_isink_breath2_ton_sel(8);
+                mt6331_upmu_set_isink_breath2_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_VIOLET:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(1);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_breath0_ton_sel(8);
+                mt6331_upmu_set_isink_breath0_toff_sel(4);
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(1);
+                mt6331_upmu_set_isink_ch2_step(2);
+                mt6331_upmu_set_isink_breath2_ton_sel(8);
+                mt6331_upmu_set_isink_breath2_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            case HERMES_LED_WHITE:
+                mt6331_upmu_set_rg_drv_isink0_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink0_ck_cksel(0);
+                mt6331_upmu_set_isink_ch0_mode(1);
+                mt6331_upmu_set_isink_ch0_step(2);
+                mt6331_upmu_set_isink_breath0_ton_sel(8);
+                mt6331_upmu_set_isink_breath0_toff_sel(4);
+                mt6331_upmu_set_rg_drv_isink1_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink1_ck_cksel(0);
+                mt6331_upmu_set_isink_ch1_mode(1);
+                mt6331_upmu_set_isink_ch1_step(2);
+                mt6331_upmu_set_isink_breath1_ton_sel(8);
+                mt6331_upmu_set_isink_breath1_toff_sel(4);
+                mt6331_upmu_set_rg_drv_isink2_ck_pdn(0);
+                mt6331_upmu_set_rg_drv_isink2_ck_cksel(0);
+                mt6331_upmu_set_isink_ch2_mode(1);
+                mt6331_upmu_set_isink_ch2_step(2);
+                mt6331_upmu_set_isink_breath2_ton_sel(8);
+                mt6331_upmu_set_isink_breath2_toff_sel(4);
+                mutex_lock(&leds_pmic_mutex);
+                mt6331_upmu_set_rg_drv_32k_ck_pdn(0);
+                if (level == 0) {
+                    mt6331_upmu_set_isink_ch0_en(0);
+                    mt6331_upmu_set_isink_ch1_en(0);
+                    mt6331_upmu_set_isink_ch2_en(0);
+                    led_flag = 0;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                } else {
+                    mt6331_upmu_set_isink_ch0_en(1);
+                    mt6331_upmu_set_isink_ch1_en(1);
+                    mt6331_upmu_set_isink_ch2_en(1);
+                    led_flag = 1;
+                    mutex_unlock(&leds_pmic_mutex);
+                    return 0;
+                }
+            default:
+                break;
+        }
+    }
+    return -1;
+}
+
+extern int flashlight_onoff(int level);
+
 int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 {
 	struct nled_setting led_tmp_setting = { 0, 0, 0 };
@@ -932,7 +1372,20 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 				}
 				button_flag=true;
 			}
-		}		
+		} else if (strcmp(cust->name, "red") == 0)
+		    return hermes_static_led(HERMES_LED_RED, level);
+		else if (strcmp(cust->name, "green") == 0)
+		    return hermes_static_led(HERMES_LED_GREEN, level);
+		else if (strcmp(cust->name, "blue") == 0)
+		    return hermes_static_led(HERMES_LED_BLUE, level);
+		else if (strcmp(cust->name, "yellow") == 0)
+		    return hermes_static_led(HERMES_LED_YELLOW, level);
+		else if (strcmp(cust->name, "cyan") == 0)
+		    return hermes_static_led(HERMES_LED_CYAN, level);
+		else if (strcmp(cust->name, "violet") == 0)
+		    return hermes_static_led(HERMES_LED_VIOLET, level);
+		else if (strcmp(cust->name, "white") == 0)
+		    return hermes_static_led(HERMES_LED_WHITE, level);
 		return mt_brightness_set_pmic(cust->data, level, bl_div_hal);
 
 	case MT65XX_LED_MODE_CUST_LCM:
@@ -941,6 +1394,11 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 		}
 		LEDS_DEBUG("brightness_set_cust:backlight control by LCM\n");
 		return ((cust_brightness_set) (cust->data)) (level, bl_div_hal);
+
+	case MT65XX_LED_MODE_CUST_FLASHLIGHT:
+		if (strcmp(cust->name, "flashlight") == 0)
+			flashlight_onoff(level);
+		break;
 
 	case MT65XX_LED_MODE_CUST_BLS_PWM:
 		if (strcmp(cust->name, "lcd-backlight") == 0) {
@@ -1040,16 +1498,34 @@ int mt_mt65xx_blink_set(struct led_classdev *led_cdev,
 				nled_tmp_setting.blink_on_time = led_data->delay_on;
 				mt_led_set_pwm(led_data->cust.data, &nled_tmp_setting);
 				return 0;
-			} else if ((led_data->cust.mode == MT65XX_LED_MODE_PMIC)
-				   && (led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK0
-				       || led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK1
-				       || led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK2
-				       || led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK3)) {
+			} else if (led_data->cust.mode == MT65XX_LED_MODE_PMIC) {
+			    if (led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK3) {
 				nled_tmp_setting.nled_mode = NLED_BLINK;
 				nled_tmp_setting.blink_off_time = led_data->delay_off;
 				nled_tmp_setting.blink_on_time = led_data->delay_on;
 				mt_led_blink_pmic(led_data->cust.data, &nled_tmp_setting);
 				return 0;
+			    } else if (led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK0
+				|| led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK1
+				|| led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK2) {
+				if (strcmp(led_data->cust.name, "red") == 0)
+				    return hermes_breath_led(HERMES_LED_RED, 1);
+				else if (strcmp(led_data->cust.name, "green") == 0)
+				    return hermes_breath_led(HERMES_LED_GREEN, 1);
+				else if (strcmp(led_data->cust.name, "blue") == 0)
+				    return hermes_breath_led(HERMES_LED_BLUE, 1);
+				else if (strcmp(led_data->cust.name, "yellow") == 0)
+				    return hermes_breath_led(HERMES_LED_YELLOW, 1);
+				else if (strcmp(led_data->cust.name, "cyan") == 0)
+				    return hermes_breath_led(HERMES_LED_CYAN, 1);
+				else if (strcmp(led_data->cust.name, "violet") == 0)
+				    return hermes_breath_led(HERMES_LED_VIOLET, 1);
+				else if (strcmp(led_data->cust.name, "white") == 0)
+				    return hermes_breath_led(HERMES_LED_WHITE, 1);
+			    } else if (!got_wake_lock) {
+				wake_lock(&leds_suspend_lock);
+				got_wake_lock = 1;
+			    }
 			} else if (!got_wake_lock) {
 				wake_lock(&leds_suspend_lock);
 				got_wake_lock = 1;
@@ -1060,13 +1536,31 @@ int mt_mt65xx_blink_set(struct led_classdev *led_cdev,
 				nled_tmp_setting.nled_mode = NLED_OFF;
 				mt_led_set_pwm(led_data->cust.data, &nled_tmp_setting);
 				return 0;
-			} else if ((led_data->cust.mode == MT65XX_LED_MODE_PMIC)
-				   && (led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK0
-				       || led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK1
-				       || led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK2
-				       || led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK3)) {
+			} else if (led_data->cust.mode == MT65XX_LED_MODE_PMIC) {
+			    if (led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK3) {
 				mt_brightness_set_pmic(led_data->cust.data, 0, 0);
 				return 0;
+			    } else if (led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK0
+				|| led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK1
+				|| led_data->cust.data == MT65XX_LED_PMIC_NLED_ISINK2) {
+				if (strcmp(led_data->cust.name, "red") == 0)
+				    return hermes_breath_led(HERMES_LED_RED, 0);
+				else if (strcmp(led_data->cust.name, "green") == 0)
+				    return hermes_breath_led(HERMES_LED_GREEN, 0);
+				else if (strcmp(led_data->cust.name, "blue") == 0)
+				    return hermes_breath_led(HERMES_LED_BLUE, 0);
+				else if (strcmp(led_data->cust.name, "yellow") == 0)
+				    return hermes_breath_led(HERMES_LED_YELLOW, 0);
+				else if (strcmp(led_data->cust.name, "cyan") == 0)
+				    return hermes_breath_led(HERMES_LED_CYAN, 0);
+				else if (strcmp(led_data->cust.name, "violet") == 0)
+				    return hermes_breath_led(HERMES_LED_VIOLET, 0);
+				else if (strcmp(led_data->cust.name, "white") == 0)
+				    return hermes_breath_led(HERMES_LED_WHITE, 0);
+			    } else if (got_wake_lock) {
+				wake_unlock(&leds_suspend_lock);
+				got_wake_lock = 0;
+			    }
 			} else if (got_wake_lock) {
 				wake_unlock(&leds_suspend_lock);
 				got_wake_lock = 0;

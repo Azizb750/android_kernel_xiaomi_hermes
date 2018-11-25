@@ -150,6 +150,10 @@ extern U32 suspend_time;
 #define SYSTEM_OFF_VOLTAGE CUST_SYSTEM_OFF_VOLTAGE
 #endif
 
+#if defined(CONFIG_MTK_CW2015_BATTERY)
+int cw2015_charging_status;
+#endif
+
 /* ////////////////////////////////////////////////////////////////////////////// */
 /* Integrate with NVRAM */
 /* ////////////////////////////////////////////////////////////////////////////// */
@@ -1558,7 +1562,7 @@ static kal_bool mt_battery_100Percent_tracking_check(kal_uint32 bat_vol)
 				resetBatteryMeter = KAL_FALSE;
 			}
 
-			if (bat_vol < 4350) {
+			if (bat_vol < 4400) {
 				power_check++;
 				if (power_check > 6) {
 					BMT_status.bat_charging_state = CHR_CC;
@@ -2081,10 +2085,13 @@ void mt_battery_GetBatteryData(void)
 	static kal_uint8 batteryIndex = 0;
 	static kal_int32 previous_SOC = -1;
 
+#if defined(CONFIG_MTK_CW2015_BATTERY)
+	cw2015_charging_status = upmu_is_chr_det();
+#endif
 	bat_vol = battery_meter_get_battery_voltage(KAL_TRUE);
 	Vsense = battery_meter_get_VSense();
 	if( upmu_is_chr_det() == KAL_TRUE ) {
-		ICharging = battery_meter_get_charging_current();
+		ICharging = battery_meter_get_battery_current() / 10;
 	} else {
 		ICharging = 0;
 	}

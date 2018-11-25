@@ -44,13 +44,10 @@ extern kal_uint32 upmu_get_reg_value(kal_uint32 reg);
   *   [I2C Slave Setting] 
   *
   *********************************************************/
-#define da9210_SLAVE_ADDR_WRITE   0xD0
-#define da9210_SLAVE_ADDR_Read    0xD1
-
 #ifdef I2C_EXT_BUCK_CHANNEL
 #define da9210_BUSNUM I2C_EXT_BUCK_CHANNEL
 #else
-#define da9210_BUSNUM 0//1
+#define da9210_BUSNUM 1//0
 #endif
 
 static struct i2c_client *new_client = NULL;
@@ -711,7 +708,7 @@ static struct platform_driver da9210_user_space_driver = {
     },
 };
 
-static struct i2c_board_info __initdata i2c_da9210 = { I2C_BOARD_INFO("da9210", (da9210_SLAVE_ADDR_WRITE>>1))};
+static struct i2c_board_info __initdata i2c_da9210 = { I2C_BOARD_INFO("da9210", 0x68)};
 #endif
 
 static int __init da9210_init(void)

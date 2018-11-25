@@ -29,15 +29,15 @@
 #define FG_METER_RESISTANCE	0
 
 /* Qmax for battery  */
-#define Q_MAX_POS_50			3100
-#define Q_MAX_POS_25			3079
-#define Q_MAX_POS_0			2864
-#define Q_MAX_NEG_10			2578
+#define Q_MAX_POS_50			3200
+#define Q_MAX_POS_25			3152
+#define Q_MAX_POS_0			3181
+#define Q_MAX_NEG_10			3107
 
-#define Q_MAX_POS_50_H_CURRENT		3079
-#define Q_MAX_POS_25_H_CURRENT		3059
-#define Q_MAX_POS_0_H_CURRENT		2540
-#define Q_MAX_NEG_10_H_CURRENT		1505
+#define Q_MAX_POS_50_H_CURRENT		3187
+#define Q_MAX_POS_25_H_CURRENT		3117
+#define Q_MAX_POS_0_H_CURRENT		2524
+#define Q_MAX_NEG_10_H_CURRENT		2202
 
 
 /* Discharge Percentage */
@@ -55,7 +55,7 @@
 #define OCV_BOARD_COMPESATE	0	/* mV */
 #define R_FG_BOARD_BASE		1000
 #define R_FG_BOARD_SLOPE	1000	/* slope */
-#define CAR_TUNE_VALUE		100	/* 1.00 */
+#define CAR_TUNE_VALUE		98	/* 1.00 */
 
 
 /* HW Fuel gague  */

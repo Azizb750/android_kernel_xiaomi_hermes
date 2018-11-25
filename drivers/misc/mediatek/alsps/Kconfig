@@ -12,3 +12,4 @@ config MTK_AUTO_DETECT_ALSPS
 	  project and be auto detected by setting this option to yes 
 
 source "drivers/misc/mediatek/alsps/ltr559/Kconfig"
+source "drivers/misc/mediatek/alsps/stk3x1x/Kconfig"

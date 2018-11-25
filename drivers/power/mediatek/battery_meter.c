@@ -229,6 +229,11 @@ extern char* saved_command_line;
 
 kal_bool  gFG_Is_offset_init = KAL_FALSE;
 
+#if defined(CONFIG_MTK_CW2015_BATTERY)
+extern int cw2015_capacity;
+extern int cw2015_voltage;
+#endif
+
 #ifdef MTK_MULTI_BAT_PROFILE_SUPPORT
 extern int IMM_GetOneChannelValue_Cali(int Channel, int *voltage);
 kal_uint32 g_fg_battery_id = 0;
@@ -2413,6 +2418,9 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
 /* ============================================================ // */
 kal_int32 battery_meter_get_battery_voltage(kal_bool update)
 {
+#if defined(CONFIG_MTK_CW2015_BATTERY)
+	return cw2015_voltage;
+#else
 	int ret = 0;
 	int val = 5;
 	static int pre_val = -1;
@@ -2437,6 +2445,7 @@ kal_int32 battery_meter_get_battery_voltage(kal_bool update)
 #endif
 
 	return val;
+#endif
 }
 
 kal_int32 battery_meter_get_charging_current_imm(void)
@@ -2623,6 +2632,8 @@ kal_int32 battery_meter_get_battery_percentage(void)
 {
 #if defined(CONFIG_POWER_EXT)
 	return 50;
+#elif defined(CONFIG_MTK_CW2015_BATTERY)
+	return cw2015_capacity;
 #else
 
 	if (bat_is_charger_exist() == KAL_FALSE)

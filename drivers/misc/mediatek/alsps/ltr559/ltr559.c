@@ -82,7 +82,6 @@ extern void mt_eint_set_polarity(unsigned int eint_num, unsigned int pol);
 extern unsigned int mt_eint_set_sens(unsigned int eint_num, unsigned int sens);
 extern void mt_eint_registration(unsigned int eint_num, unsigned int flow, void (EINT_FUNC_PTR)(void), unsigned int is_auto_umask);
 extern void mt_eint_print_status(void);
-extern struct alsps_hw* ltr559_get_cust_alsps_hw(void);
 /*----------------------------------------------------------------------------*/
 
 static struct i2c_client *ltr559_i2c_client = NULL;
@@ -1931,8 +1930,7 @@ static int ltr559_i2c_suspend(struct i2c_client *client, pm_message_t msg)
       return err;
     }
 
-    #if 1   //suspend not need ps suspend  not need power down
-//    atomic_set(&obj->ps_suspend, 1);
+    atomic_set(&obj->ps_suspend, 1);
     err = ltr559_ps_disable();
     if(err < 0)
     {
@@ -1942,7 +1940,6 @@ static int ltr559_i2c_suspend(struct i2c_client *client, pm_message_t msg)
         
     ltr559_power(obj->hw, 0);
 
-    #endif
   }
   return 0;
 }
@@ -1961,12 +1958,6 @@ static int ltr559_i2c_resume(struct i2c_client *client)
   }
 
   ltr559_power(obj->hw, 1);
-/*  err = ltr559_devinit();
-  if(err < 0)
-  {
-    APS_ERR("initialize client fail!!\n");
-    return err;        
-  }*/
   atomic_set(&obj->als_suspend, 0);
   if(test_bit(CMC_BIT_ALS, &obj->enable))
   {
@@ -1976,7 +1967,7 @@ static int ltr559_i2c_resume(struct i2c_client *client)
       APS_ERR("enable als fail: %d\n", err);        
     }
   }
-  //atomic_set(&obj->ps_suspend, 0);
+  atomic_set(&obj->ps_suspend, 0);
   if(test_bit(CMC_BIT_PS,  &obj->enable))
   {
     err = ltr559_ps_enable(ps_gainrange);

@@ -4,7 +4,7 @@
 static struct vibrator_hw cust_vibrator_hw = {
     .vib_timer = 25,
     .vib_limit = 9,
-    .vib_vol = 0x5, /* 2.8V */
+    .vib_vol = 0x6, /* 3.0V */
 };
 
 struct vibrator_hw *get_cust_vibrator_hw(void)

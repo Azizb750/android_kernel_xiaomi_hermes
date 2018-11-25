@@ -30,7 +30,7 @@ int g_sw_rechr_flag=0;
 int g_sw_rechr_vlot=4100;
 
 #if defined(HIGH_BATTERY_VOLTAGE_SUPPORT)        
-kal_uint32 g_cv_reg_val=0x5; //default 4.35V
+kal_uint32 g_cv_reg_val=0x4; //default 4.35V
 #else              
 kal_uint32 g_cv_reg_val=0x8; //default 4.2V
 #endif
@@ -461,7 +461,7 @@ void swchr_hw_init(void)
     pmic_config_interface(0x804A,0x0,0x3,2);
     pmic_config_interface(0x8D1A,0xFF,0xFF,4);
     pmic_config_interface(0x8D28,0xFF,0xFF,4);
-    pmic_config_interface(0x8D36,0x3,0x3,11);
+    //pmic_config_interface(0x8D36,0x3,0x3,11);
  
     #ifdef CONFIG_MTK_PUMP_EXPRESS_PLUS_SUPPORT
     {
@@ -545,9 +545,9 @@ static kal_uint32 charging_set_cv_voltage(void *data)
     register_value = charging_parameter_to_value(VBAT_CV_VTH, GETARRAYNUM(VBAT_CV_VTH) ,*(kal_uint32 *)(data));
     g_cv_reg_val = register_value;
 
-    if(*(kal_uint32 *)(data) == BATTERY_VOLT_04_340000_V)
+    if(*(kal_uint32 *)(data) == BATTERY_VOLT_04_425000_V)
     {
-        g_cv_reg_val=0x5;
+        g_cv_reg_val=0x4;
     }
     
     set_cv_volt();

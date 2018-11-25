@@ -8,3 +8,7 @@ ifeq ($(CONFIG_MTK_SWCHR_SUPPORT),y)
 else
 	obj-$(CONFIG_MTK_SMART_BATTERY) += charging_hw_pmic.o 
 endif
+
+ifeq ($(CONFIG_MTK_CW2015_BATTERY),y)
+	obj-$(CONFIG_MTK_SMART_BATTERY) += cw2015_battery.o
+endif
