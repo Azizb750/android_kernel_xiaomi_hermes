@@ -1939,7 +1939,8 @@ static int init_pi_object(struct plugin_proci *p)
 
 	mem_size <<= 1;
 	mem_size += MXT_PAGE_SIZE;
-	dev_info(dev, "%s: alloc mem %d, each %u\n", __func__,mem_size,sizeof(struct reg_config));
+		dev_info(dev, "%s: alloc mem %d, each %zd\n", 
+						__func__,mem_size,sizeof(struct reg_config));
 	
 	obs->mem = kzalloc(mem_size, GFP_KERNEL);
 	if (!obs->mem) {
