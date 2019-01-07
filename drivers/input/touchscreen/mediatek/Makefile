@@ -12,4 +12,5 @@ obj-y   +=  tpd_misc.o
 obj-y   +=  tpd_setting.o
 
 obj-$(CONFIG_MTK_FT5206) += ft5206/
+obj-$(CONFIG_TOUCHSCREEN_MTK_ATMEL_MXT336) += ATMEL_MXT336/
 
